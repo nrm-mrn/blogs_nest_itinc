@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../../src/modules/bloggers-platform/posts/api/input-dto/get-post.input-dto.ts"],"sourcesContent":["import { ApiProperty } from '@nestjs/swagger';\n\nexport class GetPostDto {\n}\n"],"names":["GetPostDto"],"mappings":";;;;+BAEaA;;;eAAAA;;;AAAN,IAAA,AAAMA,aAAN,MAAMA;AACb"}

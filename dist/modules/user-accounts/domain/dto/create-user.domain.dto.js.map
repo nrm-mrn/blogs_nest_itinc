@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/modules/user-accounts/domain/dto/create-user.domain.dto.ts"],"sourcesContent":["export class CreateUserDomainDto {\n  login: string;\n  passHash: string;\n  email: string;\n}\n"],"names":["CreateUserDomainDto"],"mappings":";;;;+BAAaA;;;eAAAA;;;AAAN,IAAA,AAAMA,sBAAN,MAAMA;AAIb"}

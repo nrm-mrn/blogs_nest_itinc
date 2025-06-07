@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/modules/bloggers-platform/posts/dto/update-posts-by-blog.dto.ts"],"sourcesContent":["export class UpdatePostsByBlog {\n  blogId: string;\n  blogName: string;\n}\n"],"names":["UpdatePostsByBlog"],"mappings":";;;;+BAAaA;;;eAAAA;;;AAAN,IAAA,AAAMA,oBAAN,MAAMA;AAGb"}
