@@ -10,7 +10,11 @@
       "legacyDecorator": true,
       "decoratorMetadata": true
     },
-    "target": "es2021"
+    "target": "es2021",
+    "baseUrl": ".",
+    "paths": {
+      "src/*": ["./src/*"]
+    }
   },
   "module": {
     "type": "commonjs"
