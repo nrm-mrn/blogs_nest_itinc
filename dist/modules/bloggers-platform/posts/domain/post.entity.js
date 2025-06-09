@@ -58,11 +58,11 @@ let Post = class Post {
         post.content = dto.content;
         post.blogId = dto.blogId;
         post.blogName = dto.blogName;
-        post.extendedLikesInfo = {
-            likesCount: 0,
-            dislikesCount: 0,
-            newestLikes: []
-        };
+        // post.extendedLikesInfo = {
+        //   likesCount: 0,
+        //   dislikesCount: 0,
+        //   newestLikes: [],
+        // };
         return post;
     }
     /**
@@ -121,7 +121,8 @@ _ts_decorate([
 ], Post.prototype, "blogId", void 0);
 _ts_decorate([
     (0, _mongoose.Prop)({
-        type: _extendedLikesschema.ExtendedLikesInfoSchema
+        type: _extendedLikesschema.ExtendedLikesInfoSchema,
+        default: new _extendedLikesschema.ExtendedLikesInfo()
     }),
     _ts_metadata("design:type", typeof _extendedLikesschema.ExtendedLikesInfo === "undefined" ? Object : _extendedLikesschema.ExtendedLikesInfo)
 ], Post.prototype, "extendedLikesInfo", void 0);

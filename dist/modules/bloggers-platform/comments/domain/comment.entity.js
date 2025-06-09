@@ -43,6 +43,8 @@ let Comment = class Comment {
         comment.content = dto.content;
         comment.commentatorInfo.userId = dto.userId;
         comment.commentatorInfo.userLogin = dto.userLogin;
+        comment.likesCount = 0;
+        comment.dislikesCount = 0;
         return comment;
     }
     updateComment(dto) {
