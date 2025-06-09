@@ -30,19 +30,20 @@ export const errorsFormatter = (
 };
 
 export function pipesSetup(app: INestApplication) {
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      stopAtFirstError: true,
-      exceptionFactory: (errors) => {
-        const formattedErrors = errorsFormatter(errors);
-        throw new DomainException({
-          code: DomainExceptionCode.ValidationError,
-          message: 'validation failed',
-          extensions: formattedErrors,
-        });
-      },
-    }),
-  );
+  app
+    .useGlobalPipes
+    // new ValidationPipe({
+    //   transform: true,
+    //   whitelist: true,
+    //   stopAtFirstError: true,
+    //   exceptionFactory: (errors) => {
+    //     const formattedErrors = errorsFormatter(errors);
+    //     throw new DomainException({
+    //       code: DomainExceptionCode.ValidationError,
+    //       message: 'validation failed',
+    //       extensions: formattedErrors,
+    //     });
+    //   },
+    // }),
+    ();
 }
