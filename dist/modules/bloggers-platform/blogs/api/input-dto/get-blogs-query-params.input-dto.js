@@ -30,6 +30,9 @@ function _ts_metadata(k, v) {
 }
 var BlogsSortBy = /*#__PURE__*/ function(BlogsSortBy) {
     BlogsSortBy["CreatedAt"] = "createdAt";
+    BlogsSortBy["Name"] = "name";
+    BlogsSortBy["Description"] = "description";
+    BlogsSortBy["WebsiteUrl"] = "websiteUrl";
     return BlogsSortBy;
 }({});
 let GetBlogsQueryParams = class GetBlogsQueryParams extends _basequeryparamsinputdto.BaseQueryParams {

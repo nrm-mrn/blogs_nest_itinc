@@ -45,8 +45,7 @@ let BlogsController = class BlogsController {
         const { blogId } = await this.blogsService.createBlog(dto);
         return this.blogsQueryRepository.findBlogOrNotFoundFail(blogId);
     }
-    async createPostForBlog(//TODO: return ObjectIdValidationPipe
-    blogId, body) {
+    async createPostForBlog(blogId, body) {
         const dto = {
             blogId,
             title: body.title,
@@ -59,8 +58,7 @@ let BlogsController = class BlogsController {
     async getBlog(id) {
         return this.blogsQueryRepository.findBlogOrNotFoundFail(id);
     }
-    async getPostsForBlog(//TODO: return ObjectIdValidationPipe
-    blogId, query) {
+    async getPostsForBlog(blogId, query) {
         const dto = Object.assign(new _getblogpostsdto.GetBlogPostsDto(), query, {
             blogId
         });
@@ -107,7 +105,7 @@ _ts_decorate([
 _ts_decorate([
     (0, _common.Post)(':blogId/posts'),
     (0, _common.HttpCode)(_common.HttpStatus.CREATED),
-    _ts_param(0, (0, _common.Param)('blogId')),
+    _ts_param(0, (0, _common.Param)('blogId', _objectidvalidationpipeservice.ObjectIdValidationPipe)),
     _ts_param(1, (0, _common.Body)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
@@ -129,7 +127,7 @@ _ts_decorate([
 _ts_decorate([
     (0, _common.Get)(':blogId/posts'),
     (0, _common.HttpCode)(_common.HttpStatus.OK),
-    _ts_param(0, (0, _common.Param)('blogId')),
+    _ts_param(0, (0, _common.Param)('blogId', _objectidvalidationpipeservice.ObjectIdValidationPipe)),
     _ts_param(1, (0, _common.Query)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [

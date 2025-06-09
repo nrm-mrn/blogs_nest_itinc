@@ -16,6 +16,9 @@ _export(exports, {
         return pipesSetup;
     }
 });
+const _common = require("@nestjs/common");
+const _domainexceptioncodes = require("../core/exceptions/domain-exception-codes");
+const _domainexceptions = require("../core/exceptions/domain-exceptions");
 const errorsFormatter = (errors, errorMessage)=>{
     const errorsForResp = errorMessage || [];
     for (const error of errors){
@@ -34,7 +37,19 @@ const errorsFormatter = (errors, errorMessage)=>{
     return errorsForResp;
 };
 function pipesSetup(app) {
-    app.useGlobalPipes();
+    app.useGlobalPipes(new _common.ValidationPipe({
+        transform: true,
+        whitelist: true,
+        stopAtFirstError: true,
+        exceptionFactory: (errors)=>{
+            const formattedErrors = errorsFormatter(errors);
+            throw new _domainexceptions.DomainException({
+                code: _domainexceptioncodes.DomainExceptionCode.ValidationError,
+                message: 'validation failed',
+                extensions: formattedErrors
+            });
+        }
+    }));
 }
 
 //# sourceMappingURL=pipes.setup.js.map

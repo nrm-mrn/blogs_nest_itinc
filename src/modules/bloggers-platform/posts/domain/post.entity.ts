@@ -37,31 +37,31 @@ export class Post {
    * @type {string}
    */
   @Prop({ type: String, required: true, ...postDescriptionConstr })
-  public shortDescription: string;
+  shortDescription: string;
 
   /**
    * Post content
    * @type {string}
    */
   @Prop({ type: String, required: true, ...postContentConstr })
-  public content: string;
+  content: string;
 
   /**
    * Post's parent blog id
    * @type {string}
    */
   @Prop({ type: String, required: true })
-  public blogId: string;
+  blogId: string;
 
   @Prop({ type: ExtendedLikesInfoSchema, default: new ExtendedLikesInfo() })
-  public extendedLikesInfo: ExtendedLikesInfo;
+  extendedLikesInfo: ExtendedLikesInfo;
 
   /**
    * Post's parent blog name
    * @type {string}
    */
   @Prop({ type: String, required: true })
-  public blogName: string;
+  blogName: string;
 
   /**
    * Timestamps

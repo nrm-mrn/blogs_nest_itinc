@@ -4,6 +4,9 @@ import { BaseQueryParams } from 'src/core/dto/base.query-params.input-dto';
 
 export enum BlogsSortBy {
   CreatedAt = 'createdAt',
+  Name = 'name',
+  Description = 'description',
+  WebsiteUrl = 'websiteUrl',
 }
 
 export class GetBlogsQueryParams extends BaseQueryParams {
