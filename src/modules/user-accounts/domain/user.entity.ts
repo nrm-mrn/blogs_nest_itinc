@@ -74,7 +74,7 @@ export class User {
    * nullable, if exists - user is deleted
    * @type {Date | null}
    */
-  @Prop({ type: Date, nullable: true })
+  @Prop({ type: Date, nullable: true, default: null })
   deletedAt: Date | null;
 
   /**

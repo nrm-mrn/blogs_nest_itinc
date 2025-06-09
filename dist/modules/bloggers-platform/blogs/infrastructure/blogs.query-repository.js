@@ -71,6 +71,7 @@ let BlogsQueryRepository = class BlogsQueryRepository {
         });
     }
     async getBlogPosts(dto) {
+        await this.findBlogOrNotFoundFail(dto.blogId);
         const filter = this.getFilter(dto);
         const posts = await this.PostModel.find(filter).sort({
             [dto.sortBy]: dto.sortDirection

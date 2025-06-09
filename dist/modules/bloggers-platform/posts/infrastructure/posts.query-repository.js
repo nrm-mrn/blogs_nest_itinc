@@ -31,7 +31,9 @@ function _ts_param(paramIndex, decorator) {
 }
 let PostsQueryRepository = class PostsQueryRepository {
     async getAllPosts(dto) {
-        const posts = await this.PostModel.find({}).sort({
+        const posts = await this.PostModel.find({
+            deletedAt: null
+        }).sort({
             [dto.sortBy]: dto.sortDirection
         }).skip(dto.calculateSkip()).limit(dto.pageSize).exec();
         const total = await this.PostModel.countDocuments().exec();

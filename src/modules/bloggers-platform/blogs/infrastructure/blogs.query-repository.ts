@@ -57,6 +57,7 @@ export class BlogsQueryRepository {
   async getBlogPosts(
     dto: GetBlogPostsDto,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    await this.findBlogOrNotFoundFail(dto.blogId);
     const filter = this.getFilter(dto);
     const posts = await this.PostModel.find(filter)
       .sort({ [dto.sortBy]: dto.sortDirection })

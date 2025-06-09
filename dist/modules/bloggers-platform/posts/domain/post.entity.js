@@ -136,7 +136,8 @@ _ts_decorate([
 _ts_decorate([
     (0, _mongoose.Prop)({
         type: Date,
-        nullable: true
+        nullable: true,
+        default: null
     }),
     _ts_metadata("design:type", Object)
 ], Post.prototype, "deletedAt", void 0);

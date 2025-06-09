@@ -16,7 +16,7 @@ export class PostsQueryRepository {
   async getAllPosts(
     dto: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    const posts = await this.PostModel.find({})
+    const posts = await this.PostModel.find({deletedAt: null})
       .sort({ [dto.sortBy]: dto.sortDirection })
       .skip(dto.calculateSkip())
       .limit(dto.pageSize)
