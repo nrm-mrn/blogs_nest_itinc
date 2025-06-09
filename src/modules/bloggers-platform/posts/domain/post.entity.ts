@@ -53,7 +53,7 @@ export class Post {
   @Prop({ type: String, required: true })
   public blogId: string;
 
-  @Prop({ type: ExtendedLikesInfoSchema })
+  @Prop({ type: ExtendedLikesInfoSchema, default: new ExtendedLikesInfo() })
   public extendedLikesInfo: ExtendedLikesInfo;
 
   /**
@@ -89,6 +89,11 @@ export class Post {
     post.content = dto.content;
     post.blogId = dto.blogId;
     post.blogName = dto.blogName;
+    // post.extendedLikesInfo = {
+    //   likesCount: 0,
+    //   dislikesCount: 0,
+    //   newestLikes: [],
+    // };
 
     return post as PostDocument;
   }

@@ -51,7 +51,9 @@ let PostsService = class PostsService {
         };
         const newPost = this.PostModel.createPost(dto);
         const postId = await this.postsRepository.save(newPost);
-        return postId;
+        return {
+            postId
+        };
     }
     async editPost(id, input) {
         const post = await this.postsRepository.findOrNotFoundFail(id);

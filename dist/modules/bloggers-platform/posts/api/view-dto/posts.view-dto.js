@@ -43,7 +43,9 @@ let PostViewDto = class PostViewDto {
         dto.blogName = post.blogName;
         dto.createdAt = post.createdAt.toISOString();
         dto.extendedLikesInfo = {
-            ...post.extendedLikesInfo,
+            likesCount: post.extendedLikesInfo.likesCount,
+            dislikesCount: post.extendedLikesInfo.dislikesCount,
+            newestLikes: post.extendedLikesInfo.newestLikes,
             myStatus: "None"
         };
         return dto;

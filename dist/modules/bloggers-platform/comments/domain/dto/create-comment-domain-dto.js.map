@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../../src/modules/bloggers-platform/comments/domain/dto/create-comment-domain-dto.ts"],"sourcesContent":["export class CreateCommentDomainDto {\n  postId: string;\n  content: string;\n  userId: string;\n  userLogin: string;\n}\n"],"names":["CreateCommentDomainDto"],"mappings":";;;;+BAAaA;;;eAAAA;;;AAAN,IAAA,AAAMA,yBAAN,MAAMA;AAKb"}

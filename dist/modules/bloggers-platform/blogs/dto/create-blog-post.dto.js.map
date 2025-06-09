@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/modules/bloggers-platform/blogs/dto/create-blog-post.dto.ts"],"sourcesContent":["export class CreateBlogPostDto {\n  title: string;\n  shortDescription: string;\n  content: string;\n  blogId: string;\n}\n"],"names":["CreateBlogPostDto"],"mappings":";;;;+BAAaA;;;eAAAA;;;AAAN,IAAA,AAAMA,oBAAN,MAAMA;AAKb"}

@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/modules/bloggers-platform/comments/domain/comment-like.entity.ts"],"sourcesContent":["export enum CommentLikeStatus {\n  LIKE = 'Like',\n  DISLIKE = 'Dislike',\n  NONE = 'None',\n}\n"],"names":["CommentLikeStatus"],"mappings":";;;;+BAAYA;;;eAAAA;;;AAAL,IAAA,AAAKA,2CAAAA;;;;WAAAA"}

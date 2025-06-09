@@ -22,11 +22,18 @@ import { BlogService } from '../application/blog.service';
 import { CreateBlogDto } from '../dto/create-blog.dto';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
 import { ObjectIdValidationPipe } from 'src/core/pipes/object-id-validation-pipe.service';
+import { CreateBlogPostInputDto } from './input-dto/create-blog-post.input-dto';
+import { CreateBlogPostDto } from '../dto/create-blog-post.dto';
+import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-repository';
+import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
+import { GetBlogPostsDto } from './view-dto/get-blog-posts-dto';
+import { GetBlogPostsQueryParams } from './input-dto/get-blog-posts-query-params.input-dto';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private readonly blogsQueryRepository: BlogsQueryRepository,
+    private readonly postsQueryRepository: PostsQueryRepository,
     private readonly blogsService: BlogService,
   ) {}
 
@@ -50,12 +57,40 @@ export class BlogsController {
     return this.blogsQueryRepository.findBlogOrNotFoundFail(blogId);
   }
 
+  @Post(':blogId/posts')
+  @HttpCode(HttpStatus.CREATED)
+  async createPostForBlog(
+    @Param('blogId', ObjectIdValidationPipe) blogId: string,
+    @Body() body: CreateBlogPostInputDto,
+  ): Promise<PostViewDto> {
+    const dto: CreateBlogPostDto = {
+      blogId,
+      title: body.title,
+      content: body.content,
+      shortDescription: body.shortDescription,
+    };
+    const { postId } = await this.blogsService.createPostForBlog(dto);
+    return this.postsQueryRepository.findPostOrNotFoundFail(postId);
+  }
+
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async getBlog(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<BlogViewDto> {
     return this.blogsQueryRepository.findBlogOrNotFoundFail(id);
+  }
+
+  @Get(':blogId/posts')
+  @HttpCode(HttpStatus.OK)
+  async getPostsForBlog(
+    @Param('blogId', ObjectIdValidationPipe) blogId: string,
+    @Query() query: GetBlogPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    const dto: GetBlogPostsDto = Object.assign(new GetBlogPostsDto(), query, {
+      blogId,
+    });
+    return this.blogsQueryRepository.getBlogPosts(dto);
   }
 
   @Put(':id')

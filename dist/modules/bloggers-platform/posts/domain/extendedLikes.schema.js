@@ -28,6 +28,11 @@ function _ts_metadata(k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 }
 let ExtendedLikesInfo = class ExtendedLikesInfo {
+    constructor(){
+        this.likesCount = 0;
+        this.dislikesCount = 0;
+        this.newestLikes = [];
+    }
 };
 _ts_decorate([
     (0, _mongoose.Prop)({
@@ -58,7 +63,9 @@ _ts_decorate([
 ExtendedLikesInfo = _ts_decorate([
     (0, _mongoose.Schema)({
         _id: false
-    })
+    }),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [])
 ], ExtendedLikesInfo);
 const ExtendedLikesInfoSchema = _mongoose.SchemaFactory.createForClass(ExtendedLikesInfo);
 

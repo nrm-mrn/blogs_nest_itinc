@@ -33,12 +33,12 @@ export class PostsService {
     return blog;
   }
 
-  async createPost(input: CreatePostDto): Promise<string> {
+  async createPost(input: CreatePostDto): Promise<{ postId: string }> {
     const blog = await this.getParentBlog(input.blogId);
     const dto: CreatePostDomainDto = { ...input, blogName: blog.name };
     const newPost = this.PostModel.createPost(dto);
     const postId = await this.postsRepository.save(newPost);
-    return postId;
+    return { postId };
   }
 
   async editPost(id: string, input: UpdatePostDto): Promise<void> {

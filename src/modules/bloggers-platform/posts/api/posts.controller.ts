@@ -20,11 +20,16 @@ import {
   UpdatePostInputDto,
 } from './input-dto/posts.input-dto';
 import { ObjectIdValidationPipe } from 'src/core/pipes/object-id-validation-pipe.service';
+import { GetPostCommentsQueryParams } from './input-dto/get-post-comments-query-params.input-dto';
+import { CommentsQueryRepository } from '../../comments/infrastructure/comments.query-repository';
+import { CommentViewDto } from '../../comments/api/view-dto/comment-view.dto';
+import { GetPostCommentsDto } from './input-dto/get-post-comments-dto';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly postsQueryRepo: PostsQueryRepository,
+    private readonly commentsQueryRepo: CommentsQueryRepository,
     private readonly postsService: PostsService,
   ) {}
 
@@ -39,7 +44,7 @@ export class PostsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createPost(@Body() query: CreatePostInputDto): Promise<PostViewDto> {
-    const postId = await this.postsService.createPost(query);
+    const { postId } = await this.postsService.createPost(query);
     return this.postsQueryRepo.findPostOrNotFoundFail(postId);
   }
 
@@ -66,6 +71,16 @@ export class PostsController {
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<void> {
     return this.postsService.deletePost(id);
+  }
+
+  @Get(':postId/comments')
+  @HttpCode(HttpStatus.OK)
+  async getCommentsForPost(
+    @Param('postId', ObjectIdValidationPipe) postId: string,
+    @Query() query: GetPostCommentsQueryParams,
+  ): Promise<PaginatedViewDto<CommentViewDto[]>> {
+    const dto = Object.assign(new GetPostCommentsDto(), query, { postId });
+    return this.commentsQueryRepo.getCommentsForPosts(dto);
   }
 
   // async createCommentForPost(

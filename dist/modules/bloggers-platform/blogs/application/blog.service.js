@@ -12,6 +12,7 @@ const _common = require("@nestjs/common");
 const _blogentity = require("../domain/blog.entity");
 const _mongoose = require("@nestjs/mongoose");
 const _blogsrepository = require("../infrastructure/blogs.repository");
+const _postsservice = require("../../posts/application/posts.service");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -34,29 +35,33 @@ let BlogService = class BlogService {
             blogId
         };
     }
+    async createPostForBlog(dto) {
+        return this.postsService.createPost(dto);
+    }
     async editBlog(id, dto) {
         const blog = await this.blogRepository.findOrNotFoundFail(id);
-        //TODO: update post once entity is there
-        // if (blog.name !== input.name) {
-        //   await this.postsService.editPostsByBlogId(
-        //     { id, blogName: input.name }
-        //   )
-        // }
         blog.name = dto.name;
         blog.description = dto.description;
         blog.websiteUrl = dto.websiteUrl;
         await this.blogRepository.save(blog);
+        if (blog.name !== dto.name) {
+            const update = {
+                blogId: id,
+                blogName: dto.name
+            };
+            await this.postsService.updatePostsByBlogId(update);
+        }
         return;
     }
     async deleteBlog(id) {
         const blog = await this.blogRepository.findOrNotFoundFail(id);
         await this.blogRepository.deleteBlog(blog);
-    //TODO: cascade delete posts
-    // await this.postsService.deletePostsByBlogId(id);
+        await this.postsService.deletePostsByBlogId(id);
     }
-    constructor(BlogModel, blogRepository){
+    constructor(BlogModel, blogRepository, postsService){
         this.BlogModel = BlogModel;
         this.blogRepository = blogRepository;
+        this.postsService = postsService;
     }
 };
 BlogService = _ts_decorate([
@@ -65,7 +70,8 @@ BlogService = _ts_decorate([
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         typeof _blogentity.BlogModelType === "undefined" ? Object : _blogentity.BlogModelType,
-        typeof _blogsrepository.BlogsRepository === "undefined" ? Object : _blogsrepository.BlogsRepository
+        typeof _blogsrepository.BlogsRepository === "undefined" ? Object : _blogsrepository.BlogsRepository,
+        typeof _postsservice.PostsService === "undefined" ? Object : _postsservice.PostsService
     ])
 ], BlogService);
 

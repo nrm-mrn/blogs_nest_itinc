@@ -49,6 +49,7 @@ _ts_decorate([
         default: 1
     }),
     (0, _classtransformer.Type)(()=>Number),
+    (0, _classvalidator.IsNumber)(),
     _ts_metadata("design:type", Number)
 ], BaseQueryParams.prototype, "pageNumber", void 0);
 _ts_decorate([
@@ -57,6 +58,7 @@ _ts_decorate([
         default: 10
     }),
     (0, _classtransformer.Type)(()=>Number),
+    (0, _classvalidator.IsNumber)(),
     _ts_metadata("design:type", Number)
 ], BaseQueryParams.prototype, "pageSize", void 0);
 _ts_decorate([

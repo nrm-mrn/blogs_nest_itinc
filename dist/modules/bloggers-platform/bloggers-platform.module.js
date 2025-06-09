@@ -22,6 +22,8 @@ const _postsqueryrepository = require("./posts/infrastructure/posts.query-reposi
 const _postsrepository = require("./posts/infrastructure/posts.repository");
 const _postentity = require("./posts/domain/post.entity");
 const _commentscontroller = require("./comments/api/comments.controller");
+const _commentsqueryrepository = require("./comments/infrastructure/comments.query-repository");
+const _commententity = require("./comments/domain/comment.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -45,6 +47,12 @@ BloggersPlatformModule = _ts_decorate([
                     schema: _postentity.PostSchema
                 }
             ]),
+            _mongoose.MongooseModule.forFeature([
+                {
+                    name: _commententity.Comment.name,
+                    schema: _commententity.CommentSchema
+                }
+            ]),
             _useraccountsmodule.UserAccountsModule
         ],
         controllers: [
@@ -58,7 +66,8 @@ BloggersPlatformModule = _ts_decorate([
             _blogsrepository.BlogsRepository,
             _postsservice.PostsService,
             _postsqueryrepository.PostsQueryRepository,
-            _postsrepository.PostsRepository
+            _postsrepository.PostsRepository,
+            _commentsqueryrepository.CommentsQueryRepository
         ]
     })
 ], BloggersPlatformModule);

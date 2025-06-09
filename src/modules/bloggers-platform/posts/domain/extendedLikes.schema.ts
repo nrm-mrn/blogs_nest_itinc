@@ -11,6 +11,12 @@ export class ExtendedLikesInfo {
 
   @Prop({ type: [LikeDetailsSchema], required: true, default: [] })
   newestLikes: LikeDetails[];
+
+  constructor() {
+    this.likesCount = 0;
+    this.dislikesCount = 0;
+    this.newestLikes = [];
+  }
 }
 
 export const ExtendedLikesInfoSchema =

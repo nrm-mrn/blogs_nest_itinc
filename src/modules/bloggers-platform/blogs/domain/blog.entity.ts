@@ -69,7 +69,7 @@ export class Blog {
    * nullable, if exists - means entity is soft deleted
    * @type {Date | null}
    */
-  @Prop({ type: Date, nullable: true })
+  @Prop({ type: Date, nullable: true, default: null })
   deletedAt: Date | null;
 
   /**

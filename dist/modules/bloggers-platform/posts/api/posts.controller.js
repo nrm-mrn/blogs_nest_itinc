@@ -14,6 +14,9 @@ const _postsservice = require("../application/posts.service");
 const _getpostsqueryparamsinputdto = require("./input-dto/get-posts-query-params.input-dto");
 const _postsinputdto = require("./input-dto/posts.input-dto");
 const _objectidvalidationpipeservice = require("../../../../core/pipes/object-id-validation-pipe.service");
+const _getpostcommentsqueryparamsinputdto = require("./input-dto/get-post-comments-query-params.input-dto");
+const _commentsqueryrepository = require("../../comments/infrastructure/comments.query-repository");
+const _getpostcommentsdto = require("./input-dto/get-post-comments-dto");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -33,7 +36,7 @@ let PostsController = class PostsController {
         return this.postsQueryRepo.getAllPosts(query);
     }
     async createPost(query) {
-        const postId = await this.postsService.createPost(query);
+        const { postId } = await this.postsService.createPost(query);
         return this.postsQueryRepo.findPostOrNotFoundFail(postId);
     }
     async getPost(id) {
@@ -45,8 +48,15 @@ let PostsController = class PostsController {
     async deletePost(id) {
         return this.postsService.deletePost(id);
     }
-    constructor(postsQueryRepo, postsService){
+    async getCommentsForPost(postId, query) {
+        const dto = Object.assign(new _getpostcommentsdto.GetPostCommentsDto(), query, {
+            postId
+        });
+        return this.commentsQueryRepo.getCommentsForPosts(dto);
+    }
+    constructor(postsQueryRepo, commentsQueryRepo, postsService){
         this.postsQueryRepo = postsQueryRepo;
+        this.commentsQueryRepo = commentsQueryRepo;
         this.postsService = postsService;
     }
 };
@@ -102,11 +112,24 @@ _ts_decorate([
     ]),
     _ts_metadata("design:returntype", Promise)
 ], PostsController.prototype, "deletePost", null);
+_ts_decorate([
+    (0, _common.Get)(':postId/comments'),
+    (0, _common.HttpCode)(_common.HttpStatus.OK),
+    _ts_param(0, (0, _common.Param)('postId', _objectidvalidationpipeservice.ObjectIdValidationPipe)),
+    _ts_param(1, (0, _common.Query)()),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        String,
+        typeof _getpostcommentsqueryparamsinputdto.GetPostCommentsQueryParams === "undefined" ? Object : _getpostcommentsqueryparamsinputdto.GetPostCommentsQueryParams
+    ]),
+    _ts_metadata("design:returntype", Promise)
+], PostsController.prototype, "getCommentsForPost", null);
 PostsController = _ts_decorate([
     (0, _common.Controller)('posts'),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         typeof _postsqueryrepository.PostsQueryRepository === "undefined" ? Object : _postsqueryrepository.PostsQueryRepository,
+        typeof _commentsqueryrepository.CommentsQueryRepository === "undefined" ? Object : _commentsqueryrepository.CommentsQueryRepository,
         typeof _postsservice.PostsService === "undefined" ? Object : _postsservice.PostsService
     ])
 ], PostsController);

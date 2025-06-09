@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../../src/modules/bloggers-platform/comments/domain/dto/update-comment-domain-dto.ts"],"sourcesContent":["export class UpdateCommentDomainDto {\n  content: string;\n}\n"],"names":["UpdateCommentDomainDto"],"mappings":";;;;+BAAaA;;;eAAAA;;;AAAN,IAAA,AAAMA,yBAAN,MAAMA;AAEb"}

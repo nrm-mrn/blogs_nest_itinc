@@ -27,6 +27,11 @@ function _ts_metadata(k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 }
 let LikeDetails = class LikeDetails {
+    constructor(createdAt, userId, login){
+        this.addedAt = createdAt.toISOString();
+        this.userId = userId;
+        this.login = login;
+    }
 };
 _ts_decorate([
     (0, _mongoose.Prop)({
@@ -52,7 +57,13 @@ _ts_decorate([
 LikeDetails = _ts_decorate([
     (0, _mongoose.Schema)({
         _id: false
-    })
+    }),
+    _ts_metadata("design:type", Function),
+    _ts_metadata("design:paramtypes", [
+        typeof Date === "undefined" ? Object : Date,
+        String,
+        String
+    ])
 ], LikeDetails);
 const LikeDetailsSchema = _mongoose.SchemaFactory.createForClass(LikeDetails);
 
