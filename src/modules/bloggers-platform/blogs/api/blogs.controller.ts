@@ -60,7 +60,8 @@ export class BlogsController {
   @Post(':blogId/posts')
   @HttpCode(HttpStatus.CREATED)
   async createPostForBlog(
-    @Param('blogId', ObjectIdValidationPipe) blogId: string,
+    //TODO: return ObjectIdValidationPipe
+    @Param('blogId') blogId: string,
     @Body() body: CreateBlogPostInputDto,
   ): Promise<PostViewDto> {
     const dto: CreateBlogPostDto = {
@@ -84,7 +85,8 @@ export class BlogsController {
   @Get(':blogId/posts')
   @HttpCode(HttpStatus.OK)
   async getPostsForBlog(
-    @Param('blogId', ObjectIdValidationPipe) blogId: string,
+    //TODO: return ObjectIdValidationPipe
+    @Param('blogId') blogId: string,
     @Query() query: GetBlogPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const dto: GetBlogPostsDto = Object.assign(new GetBlogPostsDto(), query, {
