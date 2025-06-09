@@ -93,7 +93,7 @@ _ts_decorate([
     _ts_metadata("design:returntype", Promise)
 ], PostsController.prototype, "editPost", null);
 _ts_decorate([
-    (0, _common.Delete)('id'),
+    (0, _common.Delete)(':id'),
     (0, _common.HttpCode)(_common.HttpStatus.NO_CONTENT),
     _ts_param(0, (0, _common.Param)('id', _objectidvalidationpipeservice.ObjectIdValidationPipe)),
     _ts_metadata("design:type", Function),

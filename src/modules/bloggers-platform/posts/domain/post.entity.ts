@@ -4,6 +4,10 @@ import { UpdatePostDto } from '../dto/update-post.dto';
 import { DomainException } from 'src/core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes';
 import { CreatePostDomainDto } from './dto/create-post-domain-dto';
+import {
+  ExtendedLikesInfo,
+  ExtendedLikesInfoSchema,
+} from './extendedLikes.schema';
 
 export const postTitleConstr = {
   maxLength: 30,
@@ -48,6 +52,9 @@ export class Post {
    */
   @Prop({ type: String, required: true })
   public blogId: string;
+
+  @Prop({ type: ExtendedLikesInfoSchema })
+  public extendedLikesInfo: ExtendedLikesInfo;
 
   /**
    * Post's parent blog name

@@ -7,17 +7,26 @@ import {
 import { DomainException, Extension } from '../domain-exceptions';
 import { Response } from 'express';
 import { DomainExceptionCode } from '../domain-exception-codes';
-import { APIErrorResult, FieldError } from '../api-error.result';
+import {
+  APIErrorResult,
+  APIErrorResultExt,
+  FieldError,
+} from '../api-error.result';
+import { ConfigService } from '@nestjs/config';
+import { ConfigurationType } from 'src/modules/config/config.module';
 
 @Catch(DomainException)
 export class DomainHttpExceptionFilter implements ExceptionFilter {
+  constructor(
+    private readonly configService: ConfigService<ConfigurationType>,
+  ) {}
   catch(exception: DomainException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const code = this.mapToHttpStatus(exception.code);
     let body = {};
     if (exception.extensions) {
-      body = this.buildResponseBody(exception.extensions);
+      body = this.buildResponseBody(exception, exception.extensions);
     }
     response.status(code).json(body);
   }
@@ -43,11 +52,22 @@ export class DomainHttpExceptionFilter implements ExceptionFilter {
     }
   }
 
-  private buildResponseBody(extensions: Extension[]): APIErrorResult {
+  private buildResponseBody(
+    exception: DomainException,
+    extensions: Extension[],
+  ): APIErrorResult | APIErrorResultExt {
     const res: FieldError[] = [];
     extensions.forEach((ext) => {
       res.push(new FieldError(ext.message, ext.key));
     });
-    return { errorsMessages: res };
+
+    if (this.configService.get('nodeEnv') !== 'production') {
+      return {
+        errorsMessages: res,
+        message: exception.message,
+      };
+    } else {
+      return { errorsMessages: res };
+    }
   }
 }

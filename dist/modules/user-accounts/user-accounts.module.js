@@ -17,7 +17,6 @@ const _usersqueryrepository = require("./infrastructure/users.query-repository")
 const _usersrepository = require("./infrastructure/users.repository");
 const _basicauthguard = require("./guards/basic/basic-auth.guard");
 const _passHashservice = require("./adapters/passHash.service");
-const _config = require("@nestjs/config");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -34,8 +33,7 @@ UserAccountsModule = _ts_decorate([
                     name: _userentity.User.name,
                     schema: _userentity.UserSchema
                 }
-            ]),
-            _config.ConfigModule
+            ])
         ],
         controllers: [
             _userscontroller.UsersController

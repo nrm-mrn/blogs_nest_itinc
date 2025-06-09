@@ -38,6 +38,15 @@ let PostsQueryRepository = class PostsQueryRepository {
         const postsView = posts.map((post)=>{
             return _postsviewdto.PostViewDto.mapToView(post);
         });
+        // if (dto.userId) {
+        //   const postIds = posts.map((postDoc) => postDoc._id);
+        //   const likes = await PostLikeModel.find({
+        //     "userInfo.userId": dto.userId,
+        //     postId: { $in: postIds },
+        //   });
+        //   const likesMap = new Map(
+        //     likes.map((like) => [like.postId.toString(), like.status]),
+        //   );
         return _basepaginatedviewdto.PaginatedViewDto.mapToView({
             items: postsView,
             page: dto.pageNumber,

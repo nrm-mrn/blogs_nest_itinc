@@ -1,5 +1,5 @@
 import {
-        Body,
+  Body,
   Controller,
   Delete,
   Get,
@@ -60,7 +60,7 @@ export class PostsController {
     return this.postsService.editPost(id, query);
   }
 
-  @Delete('id')
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(
     @Param('id', ObjectIdValidationPipe) id: string,

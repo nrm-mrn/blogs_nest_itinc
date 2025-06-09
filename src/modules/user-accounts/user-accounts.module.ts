@@ -7,12 +7,10 @@ import { UsersQueryRepository } from './infrastructure/users.query-repository';
 import { UsersRepository } from './infrastructure/users.repository';
 import { BasicAuthGuard } from './guards/basic/basic-auth.guard';
 import { HashService } from './adapters/passHash.service';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    ConfigModule,
   ],
   controllers: [UsersController],
   providers: [

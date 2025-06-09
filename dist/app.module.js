@@ -17,6 +17,7 @@ const _core = require("@nestjs/core");
 const _allexceptionsfilter = require("./core/exceptions/filters/all-exceptions.filter");
 const _domainexceptionfilter = require("./core/exceptions/filters/domain-exception.filter");
 const _useraccountsmodule = require("./modules/user-accounts/user-accounts.module");
+const _testingAPImodule = require("./testing/testingAPI.module");
 function _interop_require_default(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
@@ -36,7 +37,8 @@ AppModule = _ts_decorate([
             _config.ConfigModule.forRoot({
                 load: [
                     _configmodule.default
-                ]
+                ],
+                isGlobal: true
             }),
             _mongoose.MongooseModule.forRootAsync({
                 imports: [
@@ -51,7 +53,8 @@ AppModule = _ts_decorate([
                 ]
             }),
             _bloggersplatformmodule.BloggersPlatformModule,
-            _useraccountsmodule.UserAccountsModule
+            _useraccountsmodule.UserAccountsModule,
+            _config.ConditionalModule.registerWhen(_testingAPImodule.TestingApiModule, (env)=>env.NODE_ENV === 'testing')
         ],
         controllers: [],
         providers: [

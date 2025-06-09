@@ -26,6 +26,16 @@ export class PostsQueryRepository {
       return PostViewDto.mapToView(post);
     });
 
+    // if (dto.userId) {
+    //   const postIds = posts.map((postDoc) => postDoc._id);
+    //   const likes = await PostLikeModel.find({
+    //     "userInfo.userId": dto.userId,
+    //     postId: { $in: postIds },
+    //   });
+    //   const likesMap = new Map(
+    //     likes.map((like) => [like.postId.toString(), like.status]),
+    //   );
+
     return PaginatedViewDto.mapToView({
       items: postsView,
       page: dto.pageNumber,

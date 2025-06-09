@@ -28,6 +28,7 @@ _export(exports, {
 const _mongoose = require("@nestjs/mongoose");
 const _domainexceptions = require("../../../../core/exceptions/domain-exceptions");
 const _domainexceptioncodes = require("../../../../core/exceptions/domain-exception-codes");
+const _extendedLikesschema = require("./extendedLikes.schema");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -113,6 +114,12 @@ _ts_decorate([
     }),
     _ts_metadata("design:type", String)
 ], Post.prototype, "blogId", void 0);
+_ts_decorate([
+    (0, _mongoose.Prop)({
+        type: _extendedLikesschema.ExtendedLikesInfoSchema
+    }),
+    _ts_metadata("design:type", typeof _extendedLikesschema.ExtendedLikesInfo === "undefined" ? Object : _extendedLikesschema.ExtendedLikesInfo)
+], Post.prototype, "extendedLikesInfo", void 0);
 _ts_decorate([
     (0, _mongoose.Prop)({
         type: String,

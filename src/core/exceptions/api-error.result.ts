@@ -7,3 +7,9 @@ export class FieldError {
 export class APIErrorResult {
   constructor(public errorsMessages: FieldError[]) {}
 }
+export class APIErrorResultExt {
+  constructor(
+    public errorsMessages: FieldError[],
+    public message: string,
+  ) {}
+}

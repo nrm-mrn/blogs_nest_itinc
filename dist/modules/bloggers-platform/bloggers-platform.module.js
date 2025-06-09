@@ -21,6 +21,7 @@ const _postsservice = require("./posts/application/posts.service");
 const _postsqueryrepository = require("./posts/infrastructure/posts.query-repository");
 const _postsrepository = require("./posts/infrastructure/posts.repository");
 const _postentity = require("./posts/domain/post.entity");
+const _commentscontroller = require("./comments/api/comments.controller");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -48,7 +49,8 @@ BloggersPlatformModule = _ts_decorate([
         ],
         controllers: [
             _blogscontroller.BlogsController,
-            _postscontroller.PostsController
+            _postscontroller.PostsController,
+            _commentscontroller.CommentsController
         ],
         providers: [
             _blogservice.BlogService,

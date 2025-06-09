@@ -12,6 +12,9 @@ _export(exports, {
     get APIErrorResult () {
         return APIErrorResult;
     },
+    get APIErrorResultExt () {
+        return APIErrorResultExt;
+    },
     get FieldError () {
         return FieldError;
     }
@@ -25,6 +28,12 @@ let FieldError = class FieldError {
 let APIErrorResult = class APIErrorResult {
     constructor(errorsMessages){
         this.errorsMessages = errorsMessages;
+    }
+};
+let APIErrorResultExt = class APIErrorResultExt {
+    constructor(errorsMessages, message){
+        this.errorsMessages = errorsMessages;
+        this.message = message;
     }
 };
 
