@@ -34,7 +34,7 @@ let PostsService = class PostsService {
         const blog = await this.blogRepository.findById(blogId);
         if (!blog) {
             throw new _domainexceptions.DomainException({
-                code: _domainexceptioncodes.DomainExceptionCode.BadRequest,
+                code: _domainexceptioncodes.DomainExceptionCode.NotFound,
                 message: 'Wrong blogid',
                 extensions: [
                     new _domainexceptions.Extension('wrong blogId', 'blogId')
