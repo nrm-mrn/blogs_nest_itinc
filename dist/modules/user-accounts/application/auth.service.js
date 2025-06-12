@@ -82,11 +82,12 @@ let AuthService = class AuthService {
         }
         const emailConfirmation = await this.usersService.createEmailConfirmation(user.email);
         const email = this.templateFactory.generateRegistrationEmail(emailConfirmation.confirmationCode);
-        this.mailerService.sendMail({
+        await this.mailerService.sendMail({
             to: user.email,
             subject: 'Bloggers platform registration',
             html: email
-        }).catch((err)=>console.error(`error sending email: ${err}`));
+        });
+        // .catch((err) => console.error(`error sending email: ${err}`));
         return {
             userId
         };
@@ -99,11 +100,12 @@ let AuthService = class AuthService {
     async resendConfirmation(email) {
         const newConfirmation = await this.usersService.createEmailConfirmation(email);
         const emailTemplate = this.templateFactory.generateRegistrationEmail(newConfirmation.confirmationCode);
-        this.mailerService.sendMail({
+        await this.mailerService.sendMail({
             to: email,
             subject: 'Bloggers platform registration',
             html: emailTemplate
-        }).catch((err)=>console.error(`error sending email: ${err}`));
+        });
+        // .catch((err) => console.error(`error sending email: ${err}`));
         return;
     }
     async reissueTokensPair(token) {
@@ -130,11 +132,12 @@ let AuthService = class AuthService {
             return;
         }
         const emailTemplate = this.templateFactory.generatePassRecoveryEmail(recoveryObj.confirmationCode);
-        this.mailerService.sendMail({
+        await this.mailerService.sendMail({
             to: email,
             subject: 'Blogs service password recovery request',
             html: emailTemplate
-        }).catch((err)=>console.error(`Error sending email: ${err}`));
+        });
+        // .catch((err) => console.error(`Error sending email: ${err}`));
         return;
     }
     async confirmPassword(input) {

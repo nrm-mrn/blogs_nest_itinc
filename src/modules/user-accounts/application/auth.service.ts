@@ -91,13 +91,12 @@ export class AuthService {
       emailConfirmation.confirmationCode,
     );
 
-    this.mailerService
-      .sendMail({
-        to: user.email,
-        subject: 'Bloggers platform registration',
-        html: email,
-      })
-      .catch((err) => console.error(`error sending email: ${err}`));
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Bloggers platform registration',
+      html: email,
+    });
+    // .catch((err) => console.error(`error sending email: ${err}`));
 
     return { userId };
   }
@@ -114,13 +113,12 @@ export class AuthService {
     const emailTemplate = this.templateFactory.generateRegistrationEmail(
       newConfirmation.confirmationCode,
     );
-    this.mailerService
-      .sendMail({
-        to: email,
-        subject: 'Bloggers platform registration',
-        html: emailTemplate,
-      })
-      .catch((err) => console.error(`error sending email: ${err}`));
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Bloggers platform registration',
+      html: emailTemplate,
+    });
+    // .catch((err) => console.error(`error sending email: ${err}`));
     return;
   }
 
@@ -149,13 +147,12 @@ export class AuthService {
       recoveryObj.confirmationCode,
     );
 
-    this.mailerService
-      .sendMail({
-        to: email,
-        subject: 'Blogs service password recovery request',
-        html: emailTemplate,
-      })
-      .catch((err) => console.error(`Error sending email: ${err}`));
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Blogs service password recovery request',
+      html: emailTemplate,
+    });
+    // .catch((err) => console.error(`Error sending email: ${err}`));
     return;
   }
 
