@@ -98,14 +98,14 @@ let AuthService = class AuthService {
         return;
     }
     async resendConfirmation(email) {
-        await new Promise((res)=>setTimeout(res, 3000));
         const newConfirmation = await this.usersService.createEmailConfirmation(email);
         const emailTemplate = this.templateFactory.generateRegistrationEmail(newConfirmation.confirmationCode);
-        await this.mailerService.sendMail({
+        const res = await this.mailerService.sendMail({
             to: email,
             subject: 'Bloggers platform registration',
             html: emailTemplate
         });
+        console.log(res);
         // .catch((err) => console.error(`error sending email: ${err}`));
         return;
     }
