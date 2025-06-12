@@ -68,6 +68,7 @@ export class AuthController {
         secure: this.configService.get('nodeEnv') === 'testing' ? false : true,
       })
       .send({ accessToken });
+    return;
   }
 
   @UseGuards(RefreshTokenGuard)
@@ -112,13 +113,15 @@ export class AuthController {
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
   async resendEmailConfirmation(@Body() dto: ResendEmailConfirmationInputDto) {
-    return this.authService.resendConfirmation(dto.email);
+    await this.authService.resendConfirmation(dto.email);
+    return
   }
 
   @Post('registration-confirmation')
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmEmail(@Body() dto: ConfirmEmailInputDto) {
-    return this.authService.confirmEmail(dto.code);
+    await this.authService.confirmEmail(dto.code);
+    return
   }
 
   @Post('password-recovery')

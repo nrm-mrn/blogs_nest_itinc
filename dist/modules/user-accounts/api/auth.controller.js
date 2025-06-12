@@ -56,6 +56,7 @@ let AuthController = class AuthController {
         }).send({
             accessToken
         });
+        return;
     }
     async reissueTokens(req, res) {
         const token = req.cookies.refreshToken;
@@ -79,10 +80,12 @@ let AuthController = class AuthController {
         return this.authService.registerUser(body);
     }
     async resendEmailConfirmation(dto) {
-        return this.authService.resendConfirmation(dto.email);
+        await this.authService.resendConfirmation(dto.email);
+        return;
     }
     async confirmEmail(dto) {
-        return this.authService.confirmEmail(dto.code);
+        await this.authService.confirmEmail(dto.code);
+        return;
     }
     async recoverPassword(dto) {
         return this.authService.recoverPassword(dto.email);
