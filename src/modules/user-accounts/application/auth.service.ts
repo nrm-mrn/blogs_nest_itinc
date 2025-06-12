@@ -108,6 +108,7 @@ export class AuthService {
   }
 
   async resendConfirmation(email: string): Promise<void> {
+    await new Promise((res) => setTimeout(res, 2000));
     const newConfirmation =
       await this.usersService.createEmailConfirmation(email);
     const emailTemplate = this.templateFactory.generateRegistrationEmail(
