@@ -82,12 +82,6 @@ let UsersService = class UsersService {
     }
     async getUserByLoginOrEmail(input) {
         const user = await this.usersRepository.findUserByLoginOrEmail(input);
-        if (!user) {
-            throw new _domainexceptions.DomainException({
-                code: _domainexceptioncodes.DomainExceptionCode.NotFound,
-                message: 'User not found'
-            });
-        }
         return user;
     }
     async deleteUser(userId) {

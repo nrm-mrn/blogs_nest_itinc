@@ -75,14 +75,8 @@ export class UsersService {
     return this.usersRepository.findById(id);
   }
 
-  async getUserByLoginOrEmail(input: string): Promise<UserDocument> {
+  async getUserByLoginOrEmail(input: string): Promise<UserDocument | null> {
     const user = await this.usersRepository.findUserByLoginOrEmail(input);
-    if (!user) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'User not found',
-      });
-    }
     return user;
   }
 

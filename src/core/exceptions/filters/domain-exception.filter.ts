@@ -61,7 +61,7 @@ export class DomainHttpExceptionFilter implements ExceptionFilter {
       res.push(new FieldError(ext.message, ext.key));
     });
 
-    if (this.configService.get('nodeEnv') !== 'production') {
+    if (this.configService.get('nodeEnv') === 'development') {
       return {
         errorsMessages: res,
         message: exception.message,

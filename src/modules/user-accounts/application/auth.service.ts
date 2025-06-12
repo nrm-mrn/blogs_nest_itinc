@@ -14,8 +14,6 @@ import { CreateAccessTokenDto } from '../dto/create-access-token.dto';
 import { CreateSessionDto } from '../dto/create-session.dto';
 import { SessionsService } from './devices-security.service';
 import { UserInputModel } from '../dto/user-input.dto';
-import { ConfigurationType } from 'src/modules/config/config.module';
-import { ConfigService } from '@nestjs/config';
 import { UUID } from 'crypto';
 import { ConfirmPasswordDto } from '../dto/confirm-password.dto';
 
@@ -28,13 +26,18 @@ export class AuthService {
     private readonly sessionsService: SessionsService,
     private readonly mailerService: MailerService,
     private readonly templateFactory: EmailTemplates,
-    private readonly configService: ConfigService<ConfigurationType>,
   ) {}
 
   async checkCredentials(credentials: LoginDto): Promise<AuthSuccessDto> {
     const user = await this.usersService.getUserByLoginOrEmail(
       credentials.loginOrEmail,
     );
+    if (!user) {
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: 'Wrong login or password',
+      });
+    }
     const isValidPass = await this.passHashService.compareHash(
       credentials.password,
       user.passwordHash,

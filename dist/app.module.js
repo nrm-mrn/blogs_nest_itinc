@@ -56,7 +56,7 @@ AppModule = _ts_decorate([
             _bloggersplatformmodule.BloggersPlatformModule,
             _useraccountsmodule.UserAccountsModule,
             _notificationsmodule.NotificationsModule,
-            _config.ConditionalModule.registerWhen(_testingAPImodule.TestingApiModule, (env)=>env.NODE_ENV === 'testing')
+            _config.ConditionalModule.registerWhen(_testingAPImodule.TestingApiModule, (env)=>env.NODE_ENV !== 'production')
         ],
         controllers: [],
         providers: [

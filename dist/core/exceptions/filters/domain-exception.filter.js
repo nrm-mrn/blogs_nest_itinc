@@ -58,7 +58,7 @@ let DomainHttpExceptionFilter = class DomainHttpExceptionFilter {
         extensions.forEach((ext)=>{
             res.push(new _apierrorresult.FieldError(ext.message, ext.key));
         });
-        if (this.configService.get('nodeEnv') !== 'production') {
+        if (this.configService.get('nodeEnv') === 'development') {
             return {
                 errorsMessages: res,
                 message: exception.message

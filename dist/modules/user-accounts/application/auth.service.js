@@ -18,7 +18,6 @@ const _domainexceptions = require("../../../core/exceptions/domain-exceptions");
 const _domainexceptioncodes = require("../../../core/exceptions/domain-exception-codes");
 const _mongoose = /*#__PURE__*/ _interop_require_default(require("mongoose"));
 const _devicessecurityservice = require("./devices-security.service");
-const _config = require("@nestjs/config");
 function _interop_require_default(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
@@ -36,6 +35,12 @@ function _ts_metadata(k, v) {
 let AuthService = class AuthService {
     async checkCredentials(credentials) {
         const user = await this.usersService.getUserByLoginOrEmail(credentials.loginOrEmail);
+        if (!user) {
+            throw new _domainexceptions.DomainException({
+                code: _domainexceptioncodes.DomainExceptionCode.Unauthorized,
+                message: 'Wrong login or password'
+            });
+        }
         const isValidPass = await this.passHashService.compareHash(credentials.password, user.passwordHash);
         if (!isValidPass) {
             throw new _domainexceptions.DomainException({
@@ -135,14 +140,13 @@ let AuthService = class AuthService {
     async confirmPassword(input) {
         await this.usersService.confirmPassword(input);
     }
-    constructor(usersService, passHashService, jwtService, sessionsService, mailerService, templateFactory, configService){
+    constructor(usersService, passHashService, jwtService, sessionsService, mailerService, templateFactory){
         this.usersService = usersService;
         this.passHashService = passHashService;
         this.jwtService = jwtService;
         this.sessionsService = sessionsService;
         this.mailerService = mailerService;
         this.templateFactory = templateFactory;
-        this.configService = configService;
     }
 };
 AuthService = _ts_decorate([
@@ -154,8 +158,7 @@ AuthService = _ts_decorate([
         typeof _jwt.JwtService === "undefined" ? Object : _jwt.JwtService,
         typeof _devicessecurityservice.SessionsService === "undefined" ? Object : _devicessecurityservice.SessionsService,
         typeof _mailer.MailerService === "undefined" ? Object : _mailer.MailerService,
-        typeof _emailtemplates.EmailTemplates === "undefined" ? Object : _emailtemplates.EmailTemplates,
-        typeof _config.ConfigService === "undefined" ? Object : _config.ConfigService
+        typeof _emailtemplates.EmailTemplates === "undefined" ? Object : _emailtemplates.EmailTemplates
     ])
 ], AuthService);
 

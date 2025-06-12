@@ -30,7 +30,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     NotificationsModule,
     ConditionalModule.registerWhen(
       TestingApiModule,
-      (env: NodeJS.ProcessEnv) => env.NODE_ENV === 'testing',
+      (env: NodeJS.ProcessEnv) => env.NODE_ENV !== 'production',
     ),
   ],
   controllers: [],
