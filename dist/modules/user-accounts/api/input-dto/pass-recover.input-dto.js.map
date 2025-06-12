@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/modules/user-accounts/api/input-dto/pass-recover.input-dto.ts"],"sourcesContent":["import { IsEmail } from 'class-validator';\n\nexport class PassRecoverInputDto {\n  @IsEmail()\n  email: string;\n}\n"],"names":["PassRecoverInputDto"],"mappings":";;;;+BAEaA;;;eAAAA;;;gCAFW;;;;;;;;;;AAEjB,IAAA,AAAMA,sBAAN,MAAMA;AAGb"}

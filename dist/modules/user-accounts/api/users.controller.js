@@ -10,12 +10,13 @@ Object.defineProperty(exports, "UsersController", {
 });
 const _common = require("@nestjs/common");
 const _usersservice = require("../application/users.service");
-const _usersqueryrepository = require("../infrastructure/users.query-repository");
+const _usersqueryrepository = require("../infrastructure/query/users.query-repository");
 const _getusersqueryparamsinputdto = require("./input-dto/get-users-query-params.input-dto");
-const _usersinputdto = require("./input-dto/users.input-dto");
+const _basicauthguard = require("../guards/basic/basic-auth.guard");
 const _domainexceptions = require("../../../core/exceptions/domain-exceptions");
 const _domainexceptioncodes = require("../../../core/exceptions/domain-exception-codes");
 const _objectidvalidationpipeservice = require("../../../core/pipes/object-id-validation-pipe.service");
+const _createuserinputdto = require("./input-dto/create-user.input-dto");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -74,7 +75,7 @@ _ts_decorate([
     _ts_param(0, (0, _common.Body)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _usersinputdto.CreateUserInputDto === "undefined" ? Object : _usersinputdto.CreateUserInputDto
+        typeof _createuserinputdto.CreateUserInputDto === "undefined" ? Object : _createuserinputdto.CreateUserInputDto
     ]),
     _ts_metadata("design:returntype", Promise)
 ], UsersController.prototype, "createUser", null);
@@ -90,6 +91,7 @@ _ts_decorate([
 ], UsersController.prototype, "deleteUser", null);
 UsersController = _ts_decorate([
     (0, _common.Controller)('users'),
+    (0, _common.UseGuards)(_basicauthguard.BasicAuthGuard),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         typeof _usersservice.UsersService === "undefined" ? Object : _usersservice.UsersService,

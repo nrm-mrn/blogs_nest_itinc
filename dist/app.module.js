@@ -18,6 +18,7 @@ const _allexceptionsfilter = require("./core/exceptions/filters/all-exceptions.f
 const _domainexceptionfilter = require("./core/exceptions/filters/domain-exception.filter");
 const _useraccountsmodule = require("./modules/user-accounts/user-accounts.module");
 const _testingAPImodule = require("./testing/testingAPI.module");
+const _notificationsmodule = require("./modules/notifications/notifications.module");
 function _interop_require_default(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
@@ -54,6 +55,7 @@ AppModule = _ts_decorate([
             }),
             _bloggersplatformmodule.BloggersPlatformModule,
             _useraccountsmodule.UserAccountsModule,
+            _notificationsmodule.NotificationsModule,
             _config.ConditionalModule.registerWhen(_testingAPImodule.TestingApiModule, (env)=>env.NODE_ENV === 'testing')
         ],
         controllers: [],

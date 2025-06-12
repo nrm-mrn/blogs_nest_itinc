@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/modules/user-accounts/dto/create-access-token.dto.ts"],"sourcesContent":["export class CreateAccessTokenDto {\n  id: string;\n}\n"],"names":["CreateAccessTokenDto"],"mappings":";;;;+BAAaA;;;eAAAA;;;AAAN,IAAA,AAAMA,uBAAN,MAAMA;AAEb"}

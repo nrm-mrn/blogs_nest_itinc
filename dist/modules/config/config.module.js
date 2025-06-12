@@ -21,7 +21,14 @@ const getSettings = ()=>({
             minutes: 10
         }),
         adminUsername: process.env.ADMIN_USER,
-        adminPassword: process.env.ADMIN_PASSWORD
+        adminPassword: process.env.ADMIN_PASSWORD,
+        jwtSecret: process.env.JWT_SECRET,
+        jwtExpiration: process.env.JWT_EXP_TIME_IN_MINUTES,
+        mailerHost: process.env.EMAIL_HOST,
+        mailerLogin: process.env.EMAIL,
+        mailerPass: process.env.EMAIL_PASS,
+        confirmationCodesDomain: process.env.CONFIRMATION_CODES_DOMAIN,
+        refreshTokenDuration: +process.env.REFRESHT_TIME_IN_MINUTES
     });
 const _default = getSettings;
 

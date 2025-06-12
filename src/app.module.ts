@@ -9,6 +9,7 @@ import { AllExceptionFilter } from './core/exceptions/filters/all-exceptions.fil
 import { DomainHttpExceptionFilter } from './core/exceptions/filters/domain-exception.filter';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
 import { TestingApiModule } from './testing/testingAPI.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { TestingApiModule } from './testing/testingAPI.module';
     }),
     BloggersPlatformModule,
     UserAccountsModule,
+    NotificationsModule,
     ConditionalModule.registerWhen(
       TestingApiModule,
       (env: NodeJS.ProcessEnv) => env.NODE_ENV === 'testing',

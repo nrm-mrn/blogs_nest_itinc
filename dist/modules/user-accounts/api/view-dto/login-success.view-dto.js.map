@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/modules/user-accounts/api/view-dto/login-success.view-dto.ts"],"sourcesContent":["export class LoginSuccess {\n  accessToken: string;\n}\n"],"names":["LoginSuccess"],"mappings":";;;;+BAAaA;;;eAAAA;;;AAAN,IAAA,AAAMA,eAAN,MAAMA;AAEb"}

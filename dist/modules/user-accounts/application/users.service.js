@@ -10,7 +10,7 @@ Object.defineProperty(exports, "UsersService", {
 });
 const _common = require("@nestjs/common");
 const _usersrepository = require("../infrastructure/users.repository");
-const _passHashservice = require("../adapters/passHash.service");
+const _passHashservice = require("./passHash.service");
 const _mongoose = require("@nestjs/mongoose");
 const _userentity = require("../domain/user.entity");
 const _domainexceptions = require("../../../core/exceptions/domain-exceptions");

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UsersRepository } from '../infrastructure/users.repository';
-import { HashService } from '../adapters/passHash.service';
+import { HashService } from './passHash.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument, UserModelType } from '../domain/user.entity';
 import {
