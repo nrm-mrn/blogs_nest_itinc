@@ -9,7 +9,7 @@ const getSettings = () => ({
   port: parseInt(process.env.PORT!, 10) || 3000,
   passRecoveryExpiration: Duration.fromObject({ minutes: 10 }),
   emailExpiration: Duration.fromObject({ minutes: 10 }),
-  adminUsername: process.env.ADMIN_USER,
+  adminUsername: process.env.ADMIN_USERNAME,
   adminPassword: process.env.ADMIN_PASSWORD,
   jwtSecret: process.env.JWT_SECRET as string,
   jwtExpiration: process.env.JWT_EXP_TIME_IN_MINUTES,

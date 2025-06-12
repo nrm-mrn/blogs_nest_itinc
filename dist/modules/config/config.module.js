@@ -20,7 +20,7 @@ const getSettings = ()=>({
         emailExpiration: _luxon.Duration.fromObject({
             minutes: 10
         }),
-        adminUsername: process.env.ADMIN_USER,
+        adminUsername: process.env.ADMIN_USERNAME,
         adminPassword: process.env.ADMIN_PASSWORD,
         jwtSecret: process.env.JWT_SECRET,
         jwtExpiration: process.env.JWT_EXP_TIME_IN_MINUTES,
