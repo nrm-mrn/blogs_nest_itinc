@@ -118,7 +118,7 @@ export class AuthController {
   @Post('registration-confirmation')
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmEmail(@Body() dto: ConfirmEmailInputDto) {
-    this.authService.confirmEmail(dto.code);
+    return this.authService.confirmEmail(dto.code);
   }
 
   @Post('password-recovery')

@@ -82,7 +82,7 @@ let AuthController = class AuthController {
         return this.authService.resendConfirmation(dto.email);
     }
     async confirmEmail(dto) {
-        this.authService.confirmEmail(dto.code);
+        return this.authService.confirmEmail(dto.code);
     }
     async recoverPassword(dto) {
         return this.authService.recoverPassword(dto.email);
