@@ -99,6 +99,15 @@ let UsersService = class UsersService {
                 ]
             });
         }
+        if (user.emailConfirmation?.isConfirmed) {
+            throw new _domainexceptions.DomainException({
+                code: _domainexceptioncodes.DomainExceptionCode.BadRequest,
+                message: 'Email is already confirmed',
+                extensions: [
+                    new _domainexceptions.Extension('Email is already confirmed', 'email')
+                ]
+            });
+        }
         user.genEmailConfirmation(this.configService.get('emailExpiration'));
         await this.usersRepository.save(user);
         return user.emailConfirmation;

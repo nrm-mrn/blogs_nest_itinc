@@ -56,7 +56,6 @@ let AuthController = class AuthController {
         }).send({
             accessToken
         });
-        return;
     }
     async reissueTokens(req, res) {
         const token = req.cookies.refreshToken;
@@ -67,40 +66,33 @@ let AuthController = class AuthController {
         }).send({
             accessToken
         });
-        return;
     }
     async logout(req, res) {
         const token = req.cookies.refreshToken;
         await this.sessionsService.logout(token);
         res.clearCookie('refreshToken').send();
-        return;
     }
     async getUserInfo(user) {
         return this.usersQueryRepo.getUserInfoOrFail(user.userId);
     }
     async registerUser(body) {
-        await this.authService.registerUser(body);
-        return;
+        return this.authService.registerUser(body);
     }
     async resendEmailConfirmation(dto) {
-        await this.authService.resendConfirmation(dto.email);
-        return;
+        return this.authService.resendConfirmation(dto.email);
     }
     async confirmEmail(dto) {
-        await this.authService.confirmEmail(dto.code);
-        return;
+        this.authService.confirmEmail(dto.code);
     }
     async recoverPassword(dto) {
-        await this.authService.recoverPassword(dto.email);
-        return;
+        return this.authService.recoverPassword(dto.email);
     }
     async confirmPassword(dto) {
         const confirmDto = {
             code: dto.recoveryCode,
             password: dto.newPassword
         };
-        await this.authService.confirmPassword(confirmDto);
-        return;
+        return this.authService.confirmPassword(confirmDto);
     }
     constructor(authService, sessionsService, configService, usersQueryRepo){
         this.authService = authService;

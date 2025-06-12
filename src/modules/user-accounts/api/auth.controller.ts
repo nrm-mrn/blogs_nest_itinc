@@ -68,7 +68,6 @@ export class AuthController {
         secure: this.configService.get('nodeEnv') === 'testing' ? false : true,
       })
       .send({ accessToken });
-    return;
   }
 
   @UseGuards(RefreshTokenGuard)
@@ -84,7 +83,6 @@ export class AuthController {
         secure: this.configService.get('nodeEnv') === 'testing' ? false : true,
       })
       .send({ accessToken });
-    return;
   }
 
   @UseGuards(RefreshTokenGuard)
@@ -94,7 +92,6 @@ export class AuthController {
     const token = req.cookies.refreshToken as string;
     await this.sessionsService.logout(token);
     res.clearCookie('refreshToken').send();
-    return;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -109,29 +106,25 @@ export class AuthController {
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
   async registerUser(@Body() body: RegisterUserInputDto) {
-    await this.authService.registerUser(body);
-    return;
+    return this.authService.registerUser(body);
   }
 
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
   async resendEmailConfirmation(@Body() dto: ResendEmailConfirmationInputDto) {
-    await this.authService.resendConfirmation(dto.email);
-    return;
+    return this.authService.resendConfirmation(dto.email);
   }
 
   @Post('registration-confirmation')
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmEmail(@Body() dto: ConfirmEmailInputDto) {
-    await this.authService.confirmEmail(dto.code);
-    return;
+    this.authService.confirmEmail(dto.code);
   }
 
   @Post('password-recovery')
   @HttpCode(HttpStatus.NO_CONTENT)
   async recoverPassword(@Body() dto: PassRecoverInputDto) {
-    await this.authService.recoverPassword(dto.email);
-    return;
+    return this.authService.recoverPassword(dto.email);
   }
 
   @Post('new-password')
@@ -141,7 +134,6 @@ export class AuthController {
       code: dto.recoveryCode,
       password: dto.newPassword,
     };
-    await this.authService.confirmPassword(confirmDto);
-    return;
+    return this.authService.confirmPassword(confirmDto);
   }
 }
