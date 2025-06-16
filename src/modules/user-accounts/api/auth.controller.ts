@@ -7,7 +7,6 @@ import {
   HttpStatus,
   Ip,
   Post,
-  Query,
   Req,
   Res,
   UseGuards,
@@ -15,9 +14,8 @@ import {
 import { AuthService } from '../application/auth.service';
 import { SessionsService } from '../application/devices-security.service';
 import { UserLoginInputDto } from './input-dto/user-login-dto';
-import { LoginSuccess } from './view-dto/login-success.view-dto';
 import { LoginDto } from '../dto/login.dto';
-import { Request, Response, response } from 'express';
+import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from 'src/modules/config/config.module';
 import { MeViewDto } from './view-dto/users.view-dto';
@@ -65,7 +63,8 @@ export class AuthController {
     response
       .cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: this.configService.get('nodeEnv') === 'testing' ? false : true,
+        secure:
+          this.configService.get('nodeEnv') === 'development' ? false : true,
       })
       .send({ accessToken });
   }
@@ -80,7 +79,8 @@ export class AuthController {
     res
       .cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: this.configService.get('nodeEnv') === 'testing' ? false : true,
+        secure:
+          this.configService.get('nodeEnv') === 'development' ? false : true,
       })
       .send({ accessToken });
   }

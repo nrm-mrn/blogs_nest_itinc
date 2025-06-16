@@ -52,7 +52,7 @@ let AuthController = class AuthController {
         const { accessToken, refreshToken } = await this.authService.checkCredentials(creds);
         response.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: this.configService.get('nodeEnv') === 'testing' ? false : true
+            secure: this.configService.get('nodeEnv') === 'development' ? false : true
         }).send({
             accessToken
         });
@@ -62,7 +62,7 @@ let AuthController = class AuthController {
         const { refreshToken, accessToken } = await this.authService.reissueTokensPair(token);
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: this.configService.get('nodeEnv') === 'testing' ? false : true
+            secure: this.configService.get('nodeEnv') === 'development' ? false : true
         }).send({
             accessToken
         });
