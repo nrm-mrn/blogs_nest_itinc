@@ -134,10 +134,10 @@ export class PostsController {
   async getCommentsForPost(
     @Param('id', ObjectIdValidationPipe) postId: string,
     @Query() query: GetPostCommentsQueryParams,
-    @ExtractUserFromRequestIfExists() user: Nullable<UserContextDto>,
+    @ExtractUserFromRequestIfExists() user: UserContextDto | null,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
     return this.queryBus.execute(
-      new GetCommentsByPostQuery(query, postId, user.userId),
+      new GetCommentsByPostQuery(query, postId, user?.userId),
     );
   }
 }

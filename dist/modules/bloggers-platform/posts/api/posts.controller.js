@@ -71,7 +71,7 @@ let PostsController = class PostsController {
         return this.queryBus.execute(new _getcommentquery.GetCommentQuery(commentId, user.userId));
     }
     async getCommentsForPost(postId, query, user) {
-        return this.queryBus.execute(new _getcommentsforpostquery.GetCommentsByPostQuery(query, postId, user.userId));
+        return this.queryBus.execute(new _getcommentsforpostquery.GetCommentsByPostQuery(query, postId, user?.userId));
     }
     constructor(postsQueryRepo, postsService, queryBus, commandBus){
         this.postsQueryRepo = postsQueryRepo;
@@ -182,7 +182,7 @@ _ts_decorate([
     _ts_metadata("design:paramtypes", [
         String,
         typeof _getpostcommentsqueryparamsinputdto.GetPostCommentsQueryParams === "undefined" ? Object : _getpostcommentsqueryparamsinputdto.GetPostCommentsQueryParams,
-        typeof _usercontextdto.Nullable === "undefined" ? Object : _usercontextdto.Nullable
+        Object
     ]),
     _ts_metadata("design:returntype", Promise)
 ], PostsController.prototype, "getCommentsForPost", null);

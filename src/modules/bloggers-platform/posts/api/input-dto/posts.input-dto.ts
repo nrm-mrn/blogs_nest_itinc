@@ -7,13 +7,13 @@ import {
 import { IsValidObjectId } from 'src/core/decorators/validators/is-valid-object-id';
 
 export class CreatePostInputDto {
-  @IsStringWithTrim(0, postTitleConstr.maxLength)
+  @IsStringWithTrim(1, postTitleConstr.maxLength)
   title: string;
 
-  @IsStringWithTrim(0, postDescriptionConstr.maxLength)
+  @IsStringWithTrim(1, postDescriptionConstr.maxLength)
   shortDescription: string;
 
-  @IsStringWithTrim(0, postContentConstr.maxLength)
+  @IsStringWithTrim(1, postContentConstr.maxLength)
   content: string;
 
   @IsValidObjectId()
@@ -21,13 +21,13 @@ export class CreatePostInputDto {
 }
 
 export class UpdatePostInputDto {
-  @IsStringWithTrim(0, postTitleConstr.maxLength)
+  @IsStringWithTrim(1, postTitleConstr.maxLength)
   title: string;
 
-  @IsStringWithTrim(0, postDescriptionConstr.maxLength)
+  @IsStringWithTrim(1, postDescriptionConstr.maxLength)
   shortDescription: string;
 
-  @IsStringWithTrim(0, postContentConstr.maxLength)
+  @IsStringWithTrim(1, postContentConstr.maxLength)
   content: string;
 
   @IsValidObjectId()

@@ -6,12 +6,12 @@ import {
 } from 'src/modules/bloggers-platform/posts/domain/post.entity';
 
 export class CreateBlogPostInputDto {
-  @IsStringWithTrim(0, postTitleConstr.maxLength)
+  @IsStringWithTrim(1, postTitleConstr.maxLength)
   title: string;
 
-  @IsStringWithTrim(0, postDescriptionConstr.maxLength)
+  @IsStringWithTrim(1, postDescriptionConstr.maxLength)
   shortDescription: string;
 
-  @IsStringWithTrim(0, postContentConstr.maxLength)
+  @IsStringWithTrim(1, postContentConstr.maxLength)
   content: string;
 }

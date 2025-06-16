@@ -13,10 +13,10 @@ export class CreateBlogInputDto {
   )
   name: string;
 
-  @IsStringWithTrim(0, blogDescriptionConstraints.maxLength)
+  @IsStringWithTrim(1, blogDescriptionConstraints.maxLength)
   description: string;
 
-  @IsStringWithTrim(0, blogUrlConstraint.maxLength)
+  @IsStringWithTrim(1, blogUrlConstraint.maxLength)
   @IsUrl()
   websiteUrl: string;
 }
@@ -28,10 +28,10 @@ export class UpdateBlogInputDto {
   )
   name: string;
 
-  @IsStringWithTrim(0, blogDescriptionConstraints.maxLength)
+  @IsStringWithTrim(1, blogDescriptionConstraints.maxLength)
   description: string;
 
-  @IsStringWithTrim(0, blogUrlConstraint.maxLength)
+  @IsStringWithTrim(1, blogUrlConstraint.maxLength)
   @IsUrl()
   websiteUrl: string;
 }

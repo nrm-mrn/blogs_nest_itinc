@@ -35,11 +35,11 @@ _ts_decorate([
     _ts_metadata("design:type", String)
 ], CreateBlogInputDto.prototype, "name", void 0);
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _blogentity.blogDescriptionConstraints.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _blogentity.blogDescriptionConstraints.maxLength),
     _ts_metadata("design:type", String)
 ], CreateBlogInputDto.prototype, "description", void 0);
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _blogentity.blogUrlConstraint.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _blogentity.blogUrlConstraint.maxLength),
     (0, _classvalidator.IsUrl)(),
     _ts_metadata("design:type", String)
 ], CreateBlogInputDto.prototype, "websiteUrl", void 0);
@@ -50,11 +50,11 @@ _ts_decorate([
     _ts_metadata("design:type", String)
 ], UpdateBlogInputDto.prototype, "name", void 0);
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _blogentity.blogDescriptionConstraints.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _blogentity.blogDescriptionConstraints.maxLength),
     _ts_metadata("design:type", String)
 ], UpdateBlogInputDto.prototype, "description", void 0);
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _blogentity.blogUrlConstraint.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _blogentity.blogUrlConstraint.maxLength),
     (0, _classvalidator.IsUrl)(),
     _ts_metadata("design:type", String)
 ], UpdateBlogInputDto.prototype, "websiteUrl", void 0);

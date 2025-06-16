@@ -22,15 +22,15 @@ function _ts_metadata(k, v) {
 let CreateBlogPostInputDto = class CreateBlogPostInputDto {
 };
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _postentity.postTitleConstr.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _postentity.postTitleConstr.maxLength),
     _ts_metadata("design:type", String)
 ], CreateBlogPostInputDto.prototype, "title", void 0);
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _postentity.postDescriptionConstr.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _postentity.postDescriptionConstr.maxLength),
     _ts_metadata("design:type", String)
 ], CreateBlogPostInputDto.prototype, "shortDescription", void 0);
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _postentity.postContentConstr.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _postentity.postContentConstr.maxLength),
     _ts_metadata("design:type", String)
 ], CreateBlogPostInputDto.prototype, "content", void 0);
 

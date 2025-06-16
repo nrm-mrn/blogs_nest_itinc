@@ -31,15 +31,15 @@ function _ts_metadata(k, v) {
 let CreatePostInputDto = class CreatePostInputDto {
 };
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _postentity.postTitleConstr.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _postentity.postTitleConstr.maxLength),
     _ts_metadata("design:type", String)
 ], CreatePostInputDto.prototype, "title", void 0);
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _postentity.postDescriptionConstr.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _postentity.postDescriptionConstr.maxLength),
     _ts_metadata("design:type", String)
 ], CreatePostInputDto.prototype, "shortDescription", void 0);
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _postentity.postContentConstr.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _postentity.postContentConstr.maxLength),
     _ts_metadata("design:type", String)
 ], CreatePostInputDto.prototype, "content", void 0);
 _ts_decorate([
@@ -49,15 +49,15 @@ _ts_decorate([
 let UpdatePostInputDto = class UpdatePostInputDto {
 };
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _postentity.postTitleConstr.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _postentity.postTitleConstr.maxLength),
     _ts_metadata("design:type", String)
 ], UpdatePostInputDto.prototype, "title", void 0);
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _postentity.postDescriptionConstr.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _postentity.postDescriptionConstr.maxLength),
     _ts_metadata("design:type", String)
 ], UpdatePostInputDto.prototype, "shortDescription", void 0);
 _ts_decorate([
-    (0, _isstringwithtrim.IsStringWithTrim)(0, _postentity.postContentConstr.maxLength),
+    (0, _isstringwithtrim.IsStringWithTrim)(1, _postentity.postContentConstr.maxLength),
     _ts_metadata("design:type", String)
 ], UpdatePostInputDto.prototype, "content", void 0);
 _ts_decorate([

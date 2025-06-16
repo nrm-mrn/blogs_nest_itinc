@@ -3,5 +3,5 @@ import { GetPostCommentsQueryParams } from '../../posts/api/input-dto/get-post-c
 export class GetCommentsForPostQueryDto {
   query: GetPostCommentsQueryParams;
   postId: string;
-  userId: string | null;
+  userId?: string;
 }

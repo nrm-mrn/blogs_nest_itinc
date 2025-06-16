@@ -8,7 +8,7 @@ export class GetCommentsByPostQuery {
   constructor(
     public readonly query: GetPostCommentsQueryParams,
     public readonly postId: string,
-    public readonly userId: string | null,
+    public readonly userId?: string,
   ) {}
 }
 
