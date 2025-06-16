@@ -30,6 +30,9 @@ import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
 import { GetBlogPostsDto } from './view-dto/get-blog-posts-dto';
 import { GetBlogPostsQueryParams } from './input-dto/get-blog-posts-query-params.input-dto';
 import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-auth.guard';
+import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-guard';
+import { ExtractUserFromRequestIfExists } from 'src/modules/user-accounts/guards/decorators/extract-user-if-exists-from-request.decorator';
+import { UserContextDto } from 'src/modules/user-accounts/guards/dto/user-context.dto';
 
 @Controller('blogs')
 export class BlogsController {
@@ -85,14 +88,17 @@ export class BlogsController {
     return this.blogsQueryRepository.findBlogOrNotFoundFail(id);
   }
 
+  @UseGuards(JwtOptionalAuthGuard)
   @Get(':blogId/posts')
   @HttpCode(HttpStatus.OK)
   async getPostsForBlog(
     @Param('blogId', ObjectIdValidationPipe) blogId: string,
     @Query() query: GetBlogPostsQueryParams,
+    @ExtractUserFromRequestIfExists() user: UserContextDto | null,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const dto: GetBlogPostsDto = Object.assign(new GetBlogPostsDto(), query, {
       blogId,
+      userId: user?.userId,
     });
     return this.blogsQueryRepository.getBlogPosts(dto);
   }

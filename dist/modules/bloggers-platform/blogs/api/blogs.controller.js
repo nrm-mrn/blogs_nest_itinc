@@ -19,6 +19,8 @@ const _postsqueryrepository = require("../../posts/infrastructure/posts.query-re
 const _getblogpostsdto = require("./view-dto/get-blog-posts-dto");
 const _getblogpostsqueryparamsinputdto = require("./input-dto/get-blog-posts-query-params.input-dto");
 const _basicauthguard = require("../../../user-accounts/guards/basic/basic-auth.guard");
+const _jwtoptionalguard = require("../../../user-accounts/guards/bearer/jwt-optional-guard");
+const _extractuserifexistsfromrequestdecorator = require("../../../user-accounts/guards/decorators/extract-user-if-exists-from-request.decorator");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -59,9 +61,10 @@ let BlogsController = class BlogsController {
     async getBlog(id) {
         return this.blogsQueryRepository.findBlogOrNotFoundFail(id);
     }
-    async getPostsForBlog(blogId, query) {
+    async getPostsForBlog(blogId, query, user) {
         const dto = Object.assign(new _getblogpostsdto.GetBlogPostsDto(), query, {
-            blogId
+            blogId,
+            userId: user?.userId
         });
         return this.blogsQueryRepository.getBlogPosts(dto);
     }
@@ -128,14 +131,17 @@ _ts_decorate([
     _ts_metadata("design:returntype", Promise)
 ], BlogsController.prototype, "getBlog", null);
 _ts_decorate([
+    (0, _common.UseGuards)(_jwtoptionalguard.JwtOptionalAuthGuard),
     (0, _common.Get)(':blogId/posts'),
     (0, _common.HttpCode)(_common.HttpStatus.OK),
     _ts_param(0, (0, _common.Param)('blogId', _objectidvalidationpipeservice.ObjectIdValidationPipe)),
     _ts_param(1, (0, _common.Query)()),
+    _ts_param(2, (0, _extractuserifexistsfromrequestdecorator.ExtractUserFromRequestIfExists)()),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         String,
-        typeof _getblogpostsqueryparamsinputdto.GetBlogPostsQueryParams === "undefined" ? Object : _getblogpostsqueryparamsinputdto.GetBlogPostsQueryParams
+        typeof _getblogpostsqueryparamsinputdto.GetBlogPostsQueryParams === "undefined" ? Object : _getblogpostsqueryparamsinputdto.GetBlogPostsQueryParams,
+        Object
     ]),
     _ts_metadata("design:returntype", Promise)
 ], BlogsController.prototype, "getPostsForBlog", null);

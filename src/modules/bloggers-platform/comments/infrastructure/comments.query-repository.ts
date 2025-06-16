@@ -41,7 +41,7 @@ export class CommentsQueryRepository {
       );
       const likes = await this.CommentLikeModel.find({
         userId: dto.userId,
-        commentId: { $in: { commentIds } },
+        commentId: { $in: commentIds },
       });
       const likesMap = new Map(
         likes.map((like) => [like.commentId, like.status]),

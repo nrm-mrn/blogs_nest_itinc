@@ -17,6 +17,7 @@ const _domainexceptions = require("../../../../core/exceptions/domain-exceptions
 const _domainexceptioncodes = require("../../../../core/exceptions/domain-exception-codes");
 const _postentity = require("../../posts/domain/post.entity");
 const _postsviewdto = require("../../posts/api/view-dto/posts.view-dto");
+const _postLikeentity = require("../../posts/domain/postLike.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -80,6 +81,22 @@ let BlogsQueryRepository = class BlogsQueryRepository {
         const postViews = posts.map((post)=>{
             return _postsviewdto.PostViewDto.mapToView(post);
         });
+        if (dto.userId) {
+            const postIds = posts.map((postDoc)=>postDoc._id.toString());
+            const likes = await this.PostLikeModel.find({
+                userId: dto.userId,
+                postId: {
+                    $in: postIds
+                }
+            });
+            const likesMap = new Map(likes.map((like)=>[
+                    like.postId,
+                    like.status
+                ]));
+            postViews.forEach((post)=>{
+                post.setLike(likesMap);
+            });
+        }
         return _basepaginatedviewdto.PaginatedViewDto.mapToView({
             items: postViews,
             page: dto.pageNumber,
@@ -97,19 +114,22 @@ let BlogsQueryRepository = class BlogsQueryRepository {
         }));
         return _blogsviewdto.BlogViewDto.mapToView(blog);
     }
-    constructor(BlogModel, PostModel){
+    constructor(BlogModel, PostModel, PostLikeModel){
         this.BlogModel = BlogModel;
         this.PostModel = PostModel;
+        this.PostLikeModel = PostLikeModel;
     }
 };
 BlogsQueryRepository = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_param(0, (0, _mongoose.InjectModel)(_blogentity.Blog.name)),
     _ts_param(1, (0, _mongoose.InjectModel)(_postentity.Post.name)),
+    _ts_param(2, (0, _mongoose.InjectModel)(_postLikeentity.PostLike.name)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         typeof _blogentity.BlogModelType === "undefined" ? Object : _blogentity.BlogModelType,
-        typeof _postentity.PostModelType === "undefined" ? Object : _postentity.PostModelType
+        typeof _postentity.PostModelType === "undefined" ? Object : _postentity.PostModelType,
+        typeof _postLikeentity.PostLikeModelType === "undefined" ? Object : _postLikeentity.PostLikeModelType
     ])
 ], BlogsQueryRepository);
 

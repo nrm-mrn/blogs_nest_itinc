@@ -10,12 +10,18 @@ import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes'
 import { Post, PostModelType } from '../../posts/domain/post.entity';
 import { GetBlogPostsDto } from '../api/view-dto/get-blog-posts-dto';
 import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
+import {
+  PostLike,
+  PostLikeModelType,
+} from '../../posts/domain/postLike.entity';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(
     @InjectModel(Blog.name) private readonly BlogModel: BlogModelType,
     @InjectModel(Post.name) private readonly PostModel: PostModelType,
+    @InjectModel(PostLike.name)
+    private readonly PostLikeModel: PostLikeModelType,
   ) {}
 
   getFilter(
@@ -68,6 +74,17 @@ export class BlogsQueryRepository {
     const postViews: PostViewDto[] = posts.map((post) => {
       return PostViewDto.mapToView(post);
     });
+    if (dto.userId) {
+      const postIds = posts.map((postDoc) => postDoc._id.toString());
+      const likes = await this.PostLikeModel.find({
+        userId: dto.userId,
+        postId: { $in: postIds },
+      });
+      const likesMap = new Map(likes.map((like) => [like.postId, like.status]));
+      postViews.forEach((post) => {
+        post.setLike(likesMap);
+      });
+    }
     return PaginatedViewDto.mapToView({
       items: postViews,
       page: dto.pageNumber,

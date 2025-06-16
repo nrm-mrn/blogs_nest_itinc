@@ -7,4 +7,5 @@ export enum BlogPostsSortBy {
 export class GetBlogPostsDto extends BaseQueryParams {
   sortBy: BlogPostsSortBy;
   blogId: string;
+  userId?: string;
 }
