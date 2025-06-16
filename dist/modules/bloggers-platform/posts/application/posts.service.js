@@ -15,6 +15,10 @@ const _blogsrepository = require("../../blogs/infrastructure/blogs.repository");
 const _domainexceptions = require("../../../../core/exceptions/domain-exceptions");
 const _domainexceptioncodes = require("../../../../core/exceptions/domain-exception-codes");
 const _mongoose = require("@nestjs/mongoose");
+const _postsviewdto = require("../api/view-dto/posts.view-dto");
+const _postLikeentity = require("../domain/postLike.entity");
+const _usersexternalservice = require("../../../user-accounts/application/users.external-service");
+const _commentsrepository = require("../../comments/infrastructure/comments.repository");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -65,34 +69,137 @@ let PostsService = class PostsService {
         return this.postsRepository.updatePostsByBlogId(update);
     }
     async deletePostsByBlogId(id) {
-        return this.postsRepository.deletePostsByBlogId(id);
+        const postIds = await this.postsRepository.findPostIdsByBlog(id);
+        await Promise.all([
+            this.postsRepository.deletePostsByBlogId(id),
+            this.commentsRepository.deleteCommentsForPosts(postIds)
+        ]);
+        return;
     }
     async deletePost(id) {
         const post = await this.postsRepository.findOrNotFoundFail(id);
-        await this.postsRepository.deletePost(post);
-    // if (res) {
-    //   await Promise.all([
-    //     this.postsRepository.deleteLikesByPost(id),
-    //     this.commentsService.deleteCommentsByPost(id),
-    //   ]);
-    //   return;
-    // }
-    // throw new Error('Failed to delete a post');
+        await Promise.all([
+            this.postsRepository.deletePost(post),
+            this.commentsRepository.deleteCommentsByPost(post._id.toString())
+        ]);
+        return;
     }
-    constructor(PostModel, postsRepository, blogRepository){
+    async handlePostLike(likeDto) {
+        const post = await this.postsRepository.findOrNotFoundFail(likeDto.postId);
+        const postLike = await this.postsRepository.findPostLikeByUserId(post._id.toString(), likeDto.userId);
+        const user = await this.usersService.findUserById(likeDto.userId);
+        if (!user) {
+            throw new _domainexceptions.DomainException({
+                code: _domainexceptioncodes.DomainExceptionCode.InternalServerError,
+                message: 'User not found by id for post like'
+            });
+        }
+        const dto = {
+            ...likeDto,
+            login: user.login
+        };
+        if (!postLike) {
+            return this.createNewLikeDoc(dto, post);
+        }
+        return this.updateLikeStatus(dto, postLike, post);
+    }
+    async createNewLikeDoc(dto, post) {
+        if (dto.status === _postsviewdto.PostLikeStatus.NONE) {
+            return;
+        }
+        switch(dto.status){
+            case _postsviewdto.PostLikeStatus.LIKE:
+                {
+                    post.addLike();
+                    break;
+                }
+            case _postsviewdto.PostLikeStatus.DISLIKE:
+                {
+                    post.addDislike();
+                    break;
+                }
+        }
+        const postLike = this.PostLikeModel.createLike(dto);
+        if (_postsviewdto.PostLikeStatus.LIKE) {
+            await this.postsRepository.save(postLike);
+            const recentLikes = await this.postsRepository.getRecentLikeDocsForPost(dto.postId, _postsviewdto.PostLikeStatus.LIKE);
+            post.updateNewestLikes(recentLikes);
+            await this.postsRepository.save(post);
+            return;
+        }
+        await Promise.all([
+            this.postsRepository.save(post),
+            this.postsRepository.save(postLike)
+        ]);
+        return;
+    }
+    async updateLikeStatus(dto, like, post) {
+        if (like.status === dto.status) {
+            return;
+        }
+        switch(dto.status){
+            case _postsviewdto.PostLikeStatus.LIKE:
+                {
+                    post.addLike();
+                    if (like.status === _postsviewdto.PostLikeStatus.DISLIKE) {
+                        post.removeDislike();
+                    }
+                    break;
+                }
+            case _postsviewdto.PostLikeStatus.DISLIKE:
+                {
+                    post.addDislike();
+                    if (like.status === _postsviewdto.PostLikeStatus.LIKE) {
+                        post.removeLike();
+                    }
+                    break;
+                }
+            case _postsviewdto.PostLikeStatus.NONE:
+                {
+                    if (like.status === _postsviewdto.PostLikeStatus.LIKE) {
+                        post.removeLike();
+                        break;
+                    }
+                    post.removeDislike();
+                    break;
+                }
+        }
+        like.status = dto.status;
+        //NOTE: the only case when LIKEs do not change
+        if (dto.status === _postsviewdto.PostLikeStatus.NONE && like.status !== _postsviewdto.PostLikeStatus.LIKE) {
+            await Promise.all([
+                this.postsRepository.save(post),
+                this.postsRepository.save(like)
+            ]);
+            return;
+        }
+        await this.postsRepository.save(like);
+        const recentLikes = await this.postsRepository.getRecentLikeDocsForPost(dto.postId, _postsviewdto.PostLikeStatus.LIKE);
+        post.updateNewestLikes(recentLikes);
+        await this.postsRepository.save(post);
+        return;
+    }
+    constructor(PostModel, PostLikeModel, postsRepository, commentsRepository, blogRepository, usersService){
         this.PostModel = PostModel;
+        this.PostLikeModel = PostLikeModel;
         this.postsRepository = postsRepository;
+        this.commentsRepository = commentsRepository;
         this.blogRepository = blogRepository;
+        this.usersService = usersService;
     }
 };
 PostsService = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_param(0, (0, _mongoose.InjectModel)(_postentity.Post.name)),
+    _ts_param(1, (0, _mongoose.InjectModel)(_postLikeentity.PostLike.name)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         typeof _postentity.PostModelType === "undefined" ? Object : _postentity.PostModelType,
+        typeof _postLikeentity.PostLikeModelType === "undefined" ? Object : _postLikeentity.PostLikeModelType,
         typeof _postsrepository.PostsRepository === "undefined" ? Object : _postsrepository.PostsRepository,
-        typeof _blogsrepository.BlogsRepository === "undefined" ? Object : _blogsrepository.BlogsRepository
+        typeof _commentsrepository.CommentsRepository === "undefined" ? Object : _commentsrepository.CommentsRepository,
+        typeof _blogsrepository.BlogsRepository === "undefined" ? Object : _blogsrepository.BlogsRepository,
+        typeof _usersexternalservice.UsersExternalService === "undefined" ? Object : _usersexternalservice.UsersExternalService
     ])
 ], PostsService);
 

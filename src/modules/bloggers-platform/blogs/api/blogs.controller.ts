@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogViewDto } from './view-dto/blogs.view-dto';
 import { PaginatedViewDto } from 'src/core/dto/base.paginated.view-dto';
@@ -28,6 +29,7 @@ import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-rep
 import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
 import { GetBlogPostsDto } from './view-dto/get-blog-posts-dto';
 import { GetBlogPostsQueryParams } from './input-dto/get-blog-posts-query-params.input-dto';
+import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-auth.guard';
 
 @Controller('blogs')
 export class BlogsController {
@@ -45,6 +47,7 @@ export class BlogsController {
     return this.blogsQueryRepository.getAllBlogs(query);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
@@ -57,6 +60,7 @@ export class BlogsController {
     return this.blogsQueryRepository.findBlogOrNotFoundFail(blogId);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Post(':blogId/posts')
   @HttpCode(HttpStatus.CREATED)
   async createPostForBlog(
@@ -93,6 +97,7 @@ export class BlogsController {
     return this.blogsQueryRepository.getBlogPosts(dto);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
@@ -108,6 +113,7 @@ export class BlogsController {
     return;
   }
 
+  @UseGuards(BasicAuthGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(

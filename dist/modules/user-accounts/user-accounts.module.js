@@ -31,6 +31,9 @@ const _devicessecurityservice = require("./application/devices-security.service"
 const _notificationsmodule = require("../notifications/notifications.module");
 const _devicessecurityrepository = require("./infrastructure/devices-security.repository");
 const _devicessecurityqueryrepository = require("./infrastructure/query/devices-security.query-repository");
+const _authtokeninjectconstants = require("./constants/auth-token.inject-constants");
+const _usersexternalservice = require("./application/users.external-service");
+const _jwtstrategy = require("./guards/bearer/jwt.strategy");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -42,22 +45,7 @@ let UserAccountsModule = class UserAccountsModule {
 UserAccountsModule = _ts_decorate([
     (0, _common.Module)({
         imports: [
-            _jwt.JwtModule.registerAsync({
-                imports: [
-                    _config.ConfigModule
-                ],
-                useFactory: async (configService)=>{
-                    return {
-                        secret: configService.get('jwtSecret'),
-                        signOptions: {
-                            expiresIn: `${configService.get('jwtExpiration')}m`
-                        }
-                    };
-                },
-                inject: [
-                    _config.ConfigService
-                ]
-            }),
+            _jwt.JwtModule.register({}),
             _notificationsmodule.NotificationsModule,
             _mongoose.MongooseModule.forFeature([
                 {
@@ -78,11 +66,41 @@ UserAccountsModule = _ts_decorate([
             _devicessecuritycontroller.DevicesSecurityController
         ],
         providers: [
+            {
+                provide: _authtokeninjectconstants.ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+                useFactory: (configService)=>{
+                    return new _jwt.JwtService({
+                        secret: configService.get('jwtAccessSecret'),
+                        signOptions: {
+                            expiresIn: `${configService.get('accessTokenDuration')}m`
+                        }
+                    });
+                },
+                inject: [
+                    _config.ConfigService
+                ]
+            },
+            {
+                provide: _authtokeninjectconstants.REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+                useFactory: (configService)=>{
+                    return new _jwt.JwtService({
+                        secret: configService.get('jwtRefreshSecret'),
+                        signOptions: {
+                            expiresIn: `${configService.get('refreshTokenDuration')}m`
+                        }
+                    });
+                },
+                inject: [
+                    _config.ConfigService
+                ]
+            },
             _usersservice.UsersService,
+            _usersexternalservice.UsersExternalService,
             _usersqueryrepository.UsersQueryRepository,
             _usersrepository.UsersRepository,
             _basicauthguard.BasicAuthGuard,
             _jwtauthguard.JwtAuthGuard,
+            _jwtstrategy.JwtStrategy,
             _jwtrefreshtokenguard.RefreshTokenGuard,
             _passHashservice.HashService,
             _emailtemplates.EmailTemplates,
@@ -94,7 +112,8 @@ UserAccountsModule = _ts_decorate([
         ],
         exports: [
             _basicauthguard.BasicAuthGuard,
-            _jwtauthguard.JwtAuthGuard
+            _jwtauthguard.JwtAuthGuard,
+            _usersexternalservice.UsersExternalService
         ]
     })
 ], UserAccountsModule);

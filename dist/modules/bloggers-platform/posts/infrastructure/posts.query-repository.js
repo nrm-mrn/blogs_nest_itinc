@@ -15,6 +15,7 @@ const _basepaginatedviewdto = require("../../../../core/dto/base.paginated.view-
 const _postsviewdto = require("../api/view-dto/posts.view-dto");
 const _domainexceptions = require("../../../../core/exceptions/domain-exceptions");
 const _domainexceptioncodes = require("../../../../core/exceptions/domain-exception-codes");
+const _postLikeentity = require("../domain/postLike.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -30,7 +31,7 @@ function _ts_param(paramIndex, decorator) {
     };
 }
 let PostsQueryRepository = class PostsQueryRepository {
-    async getAllPosts(dto) {
+    async getAllPosts(dto, userId) {
         const posts = await this.PostModel.find({
             deletedAt: null
         }).sort({
@@ -40,15 +41,22 @@ let PostsQueryRepository = class PostsQueryRepository {
         const postsView = posts.map((post)=>{
             return _postsviewdto.PostViewDto.mapToView(post);
         });
-        // if (dto.userId) {
-        //   const postIds = posts.map((postDoc) => postDoc._id);
-        //   const likes = await PostLikeModel.find({
-        //     "userInfo.userId": dto.userId,
-        //     postId: { $in: postIds },
-        //   });
-        //   const likesMap = new Map(
-        //     likes.map((like) => [like.postId.toString(), like.status]),
-        //   );
+        if (userId) {
+            const postIds = posts.map((postDoc)=>postDoc._id.toString());
+            const likes = await this.PostLikeModel.find({
+                userId,
+                postId: {
+                    $in: postIds
+                }
+            });
+            const likesMap = new Map(likes.map((like)=>[
+                    like.postId,
+                    like.status
+                ]));
+            postsView.forEach((post)=>{
+                post.setLike(likesMap);
+            });
+        }
         return _basepaginatedviewdto.PaginatedViewDto.mapToView({
             items: postsView,
             page: dto.pageNumber,
@@ -56,7 +64,7 @@ let PostsQueryRepository = class PostsQueryRepository {
             totalCount: total
         });
     }
-    async findPostOrNotFoundFail(postId) {
+    async findPostOrNotFoundFail(postId, userId) {
         const post = await this.PostModel.findOne({
             _id: postId,
             deletedAt: null
@@ -64,18 +72,31 @@ let PostsQueryRepository = class PostsQueryRepository {
             code: _domainexceptioncodes.DomainExceptionCode.NotFound,
             message: 'Post not found'
         }));
-        return _postsviewdto.PostViewDto.mapToView(post);
+        const postView = _postsviewdto.PostViewDto.mapToView(post);
+        if (userId) {
+            const like = await this.PostLikeModel.findOne({
+                userId,
+                postId
+            });
+            if (like) {
+                postView.setLike(like);
+            }
+        }
+        return postView;
     }
-    constructor(PostModel){
+    constructor(PostModel, PostLikeModel){
         this.PostModel = PostModel;
+        this.PostLikeModel = PostLikeModel;
     }
 };
 PostsQueryRepository = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_param(0, (0, _mongoose.InjectModel)(_postentity.Post.name)),
+    _ts_param(1, (0, _mongoose.InjectModel)(_postLikeentity.PostLike.name)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _postentity.PostModelType === "undefined" ? Object : _postentity.PostModelType
+        typeof _postentity.PostModelType === "undefined" ? Object : _postentity.PostModelType,
+        typeof _postLikeentity.PostLikeModelType === "undefined" ? Object : _postLikeentity.PostLikeModelType
     ])
 ], PostsQueryRepository);
 

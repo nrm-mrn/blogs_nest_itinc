@@ -18,6 +18,7 @@ const _luxon = require("luxon");
 const _config = require("@nestjs/config");
 const _domainexceptions = require("../../../core/exceptions/domain-exceptions");
 const _domainexceptioncodes = require("../../../core/exceptions/domain-exception-codes");
+const _authtokeninjectconstants = require("../constants/auth-token.inject-constants");
 function _interop_require_default(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
@@ -69,14 +70,14 @@ let SessionsService = class SessionsService {
         return;
     }
     async logout(token) {
-        const payload = this.jwtService.verify(token);
+        const payload = this.jwtRefreshTokService.verify(token);
         //NOTE: check that refresh token session is active
         const lastActiveDate = new Date(payload.iat);
         const session = await this.sessionsRepository.findSessionOrFail(payload.deviceId, lastActiveDate);
         return this.sessionsRepository.deleteSession(session);
     }
     async deleteAnotherSession(token, deviceToDelete) {
-        const payload = this.jwtService.decode(token);
+        const payload = this.jwtRefreshTokService.decode(token);
         const deviceId = payload.deviceId;
         //NOTE: check that refresh token session is active
         const lastActiveDate = new Date(payload.iat);
@@ -98,22 +99,23 @@ let SessionsService = class SessionsService {
         return this.sessionsRepository.deleteSession(targetSession);
     }
     async deleteOtherSessions(token) {
-        const payload = this.jwtService.decode(token);
+        const payload = this.jwtRefreshTokService.decode(token);
         const deviceId = payload.deviceId;
         const iat = new Date(payload.iat);
         await this.sessionsRepository.findSessionOrFail(deviceId, iat);
         return this.sessionsRepository.deleteOtherSessions(iat, payload.userId);
     }
-    constructor(SessionModel, sessionsRepository, jwtService, configService){
+    constructor(SessionModel, sessionsRepository, jwtRefreshTokService, configService){
         this.SessionModel = SessionModel;
         this.sessionsRepository = sessionsRepository;
-        this.jwtService = jwtService;
+        this.jwtRefreshTokService = jwtRefreshTokService;
         this.configService = configService;
     }
 };
 SessionsService = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_param(0, (0, _mongoose.InjectModel)(_sessionentity.DeviceAuthSession.name)),
+    _ts_param(2, (0, _common.Inject)(_authtokeninjectconstants.REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         typeof _sessionentity.SessionModelType === "undefined" ? Object : _sessionentity.SessionModelType,

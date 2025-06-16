@@ -32,6 +32,21 @@ function _ts_param(paramIndex, decorator) {
 }
 let UsersService = class UsersService {
     async createUser(input) {
+        const newUser = await this.createUserDoc(input);
+        const userId = await this.usersRepository.save(newUser);
+        return {
+            userId
+        };
+    }
+    async createUserByAdmin(input) {
+        const newUser = await this.createUserDoc(input);
+        newUser.confirmEmailByAdmin();
+        const userId = await this.usersRepository.save(newUser);
+        return {
+            userId
+        };
+    }
+    async createUserDoc(input) {
         const uniqueLogin = await this.isLoginUnique(input.login);
         if (!uniqueLogin) {
             throw new _domainexceptions.DomainException({
@@ -53,15 +68,11 @@ let UsersService = class UsersService {
             });
         }
         const hash = await this.hashService.createHash(input.password);
-        const newUser = this.UserModel.createUser({
+        return this.UserModel.createUser({
             email: input.email,
             login: input.login,
             passHash: hash
         });
-        const userId = await this.usersRepository.save(newUser);
-        return {
-            userId
-        };
     }
     async isLoginUnique(login) {
         const loginRes = await this.usersRepository.findUserByLoginOrEmail(login);

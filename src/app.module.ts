@@ -10,6 +10,7 @@ import { DomainHttpExceptionFilter } from './core/exceptions/filters/domain-exce
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
 import { TestingApiModule } from './testing/testingAPI.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
       }),
       inject: [ConfigService],
     }),
+    CqrsModule.forRoot({}),
     BloggersPlatformModule,
     UserAccountsModule,
     NotificationsModule,

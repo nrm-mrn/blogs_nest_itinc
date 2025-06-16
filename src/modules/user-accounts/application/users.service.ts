@@ -16,6 +16,7 @@ import { Duration } from 'luxon';
 import { UUID } from 'crypto';
 import { PasswordRecovery } from '../domain/passRecovery.schema';
 import { ConfirmPasswordDto } from '../dto/confirm-password.dto';
+import { EmailConfirmationViewModel } from '../dto/email-confirmation-view.dto';
 
 @Injectable()
 export class UsersService {
@@ -27,6 +28,20 @@ export class UsersService {
   ) {}
 
   async createUser(input: CreateUserDto): Promise<{ userId: string }> {
+    const newUser = await this.createUserDoc(input);
+    const userId = await this.usersRepository.save(newUser);
+
+    return { userId };
+  }
+
+  async createUserByAdmin(input: CreateUserDto): Promise<{ userId: string }> {
+    const newUser = await this.createUserDoc(input);
+    newUser.confirmEmailByAdmin();
+    const userId = await this.usersRepository.save(newUser);
+    return { userId };
+  }
+
+  private async createUserDoc(input: CreateUserDto): Promise<UserDocument> {
     const uniqueLogin = await this.isLoginUnique(input.login);
     if (!uniqueLogin) {
       throw new DomainException({
@@ -45,14 +60,11 @@ export class UsersService {
     }
 
     const hash = await this.hashService.createHash(input.password);
-    const newUser = this.UserModel.createUser({
+    return this.UserModel.createUser({
       email: input.email,
       login: input.login,
       passHash: hash,
     });
-    const userId = await this.usersRepository.save(newUser);
-
-    return { userId };
   }
 
   async isLoginUnique(login: string): Promise<boolean> {
@@ -85,7 +97,9 @@ export class UsersService {
     await this.usersRepository.deleteUser(user);
   }
 
-  async createEmailConfirmation(email: string): Promise<EmailConfirmation> {
+  async createEmailConfirmation(
+    email: string,
+  ): Promise<EmailConfirmationViewModel> {
     const user = await this.usersRepository.findUserByEmail(email);
     if (!user) {
       throw new DomainException({
@@ -107,7 +121,7 @@ export class UsersService {
       this.configService.get('emailExpiration') as Duration,
     );
     await this.usersRepository.save(user);
-    return user.emailConfirmation as EmailConfirmation;
+    return user.emailConfirmation as EmailConfirmationViewModel;
   }
 
   async confirmEmail(code: UUID): Promise<void> {

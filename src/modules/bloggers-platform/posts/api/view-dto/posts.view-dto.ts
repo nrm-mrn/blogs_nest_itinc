@@ -1,4 +1,5 @@
 import { PostDocument } from '../../domain/post.entity';
+import { PostLikeDocument } from '../../domain/postLike.entity';
 
 export enum PostLikeStatus {
   LIKE = 'Like',
@@ -47,10 +48,14 @@ export class PostViewDto {
     return dto;
   }
 
-  public setLike(likesMap: Map<string, PostLikeStatus>) {
-    const likeStatus = likesMap.get(this.id);
-    if (likeStatus) {
-      this.extendedLikesInfo.myStatus = likeStatus;
+  public setLike(likes: Map<string, PostLikeStatus> | PostLikeDocument) {
+    if (likes instanceof Map) {
+      const likeStatus = likes.get(this.id);
+      if (likeStatus) {
+        this.extendedLikesInfo.myStatus = likeStatus;
+      }
+      return;
     }
+    this.extendedLikesInfo.myStatus = likes.status;
   }
 }

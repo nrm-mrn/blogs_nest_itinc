@@ -5,7 +5,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { EmailTemplates } from 'src/modules/notifications/email.templates';
 import { LoginDto } from '../dto/login.dto';
 import { AuthSuccessDto } from '../dto/auth-success.dto';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { DomainException } from 'src/core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes';
 import { CreateRefreshTokenDto } from '../dto/create-refresh-token.dto';
@@ -16,13 +16,20 @@ import { SessionsService } from './devices-security.service';
 import { UserInputModel } from '../dto/user-input.dto';
 import { UUID } from 'crypto';
 import { ConfirmPasswordDto } from '../dto/confirm-password.dto';
+import {
+  ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+  REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+} from '../constants/auth-token.inject-constants';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly passHashService: HashService,
-    private readonly jwtService: JwtService,
+    @Inject(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)
+    private readonly jwtAccesTokService: JwtService,
+    @Inject(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
+    private readonly jwtRefreshTokService: JwtService,
     private readonly sessionsService: SessionsService,
     private readonly mailerService: MailerService,
     private readonly templateFactory: EmailTemplates,
@@ -56,8 +63,8 @@ export class AuthService {
     const accTInput: CreateAccessTokenDto = {
       id: user._id.toString(),
     };
-    const accessToken = this.jwtService.sign(accTInput);
-    const refreshToken = this.jwtService.sign(rtInput);
+    const accessToken = this.jwtAccesTokService.sign(accTInput);
+    const refreshToken = this.jwtRefreshTokService.sign(rtInput);
 
     const sessionInput: CreateSessionDto = {
       deviceId: rtInput.deviceId,
@@ -123,7 +130,8 @@ export class AuthService {
   }
 
   async reissueTokensPair(token: string): Promise<AuthSuccessDto> {
-    const payload = this.jwtService.decode<CreateRefreshTokenDto>(token);
+    const payload =
+      this.jwtRefreshTokService.decode<CreateRefreshTokenDto>(token);
 
     await this.sessionsService.getSession(payload.deviceId, payload.iat);
 
@@ -132,8 +140,8 @@ export class AuthService {
       deviceId: new mongoose.Types.ObjectId().toString(),
       iat: new Date().getTime(),
     };
-    const refreshToken = this.jwtService.sign(rtInput);
-    const accessToken = this.jwtService.sign({ id: payload.userId });
+    const refreshToken = this.jwtRefreshTokService.sign(rtInput);
+    const accessToken = this.jwtAccesTokService.sign({ id: payload.userId });
     await this.sessionsService.refreshSession(payload.deviceId, rtInput.iat);
     return { accessToken, refreshToken };
   }

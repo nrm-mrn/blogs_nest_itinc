@@ -17,7 +17,6 @@ _export(exports, {
     }
 });
 const _mongoose = require("@nestjs/mongoose");
-const _crypto = require("crypto");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -32,16 +31,16 @@ let EmailConfirmation = class EmailConfirmation {
 _ts_decorate([
     (0, _mongoose.Prop)({
         type: String,
-        required: true
+        required: false
     }),
-    _ts_metadata("design:type", typeof _crypto.UUID === "undefined" ? Object : _crypto.UUID)
+    _ts_metadata("design:type", Object)
 ], EmailConfirmation.prototype, "confirmationCode", void 0);
 _ts_decorate([
     (0, _mongoose.Prop)({
         type: Date,
-        required: true
+        required: false
     }),
-    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+    _ts_metadata("design:type", Object)
 ], EmailConfirmation.prototype, "expirationDate", void 0);
 _ts_decorate([
     (0, _mongoose.Prop)({

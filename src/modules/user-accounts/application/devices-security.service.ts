@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { DevicesSecurityRepository } from '../infrastructure/devices-security.repository';
 import { InjectModel } from '@nestjs/mongoose';
@@ -15,6 +15,7 @@ import { ConfigurationType } from 'src/modules/config/config.module';
 import { DomainException } from 'src/core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes';
 import { CreateRefreshTokenDto } from '../dto/create-refresh-token.dto';
+import { REFRESH_TOKEN_STRATEGY_INJECT_TOKEN } from '../constants/auth-token.inject-constants';
 
 @Injectable()
 export class SessionsService {
@@ -22,7 +23,8 @@ export class SessionsService {
     @InjectModel(DeviceAuthSession.name)
     private readonly SessionModel: SessionModelType,
     private readonly sessionsRepository: DevicesSecurityRepository,
-    private readonly jwtService: JwtService,
+    @Inject(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
+    private readonly jwtRefreshTokService: JwtService,
     private readonly configService: ConfigService<ConfigurationType>,
   ) {}
 
@@ -69,7 +71,8 @@ export class SessionsService {
   }
 
   async logout(token: string): Promise<void> {
-    const payload = this.jwtService.verify<CreateRefreshTokenDto>(token);
+    const payload =
+      this.jwtRefreshTokService.verify<CreateRefreshTokenDto>(token);
     //NOTE: check that refresh token session is active
     const lastActiveDate = new Date(payload.iat);
     const session = await this.sessionsRepository.findSessionOrFail(
@@ -83,7 +86,8 @@ export class SessionsService {
     token: string,
     deviceToDelete: string,
   ): Promise<void> {
-    const payload = this.jwtService.decode(token);
+    const payload =
+      this.jwtRefreshTokService.decode<CreateRefreshTokenDto>(token);
     const deviceId = payload.deviceId;
 
     //NOTE: check that refresh token session is active
@@ -111,7 +115,8 @@ export class SessionsService {
   }
 
   async deleteOtherSessions(token: string): Promise<void> {
-    const payload = this.jwtService.decode(token);
+    const payload =
+      this.jwtRefreshTokService.decode<CreateRefreshTokenDto>(token);
     const deviceId = payload.deviceId;
     const iat = new Date(payload.iat);
 

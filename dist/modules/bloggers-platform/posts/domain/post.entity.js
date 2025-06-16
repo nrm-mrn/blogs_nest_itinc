@@ -87,6 +87,27 @@ let Post = class Post {
         }
         this.deletedAt = new Date();
     }
+    addLike() {
+        this.extendedLikesInfo.likesCount += 1;
+    }
+    removeLike() {
+        this.extendedLikesInfo.likesCount -= 1;
+    }
+    addDislike() {
+        this.extendedLikesInfo.dislikesCount += 1;
+    }
+    removeDislike() {
+        this.extendedLikesInfo.dislikesCount -= 1;
+    }
+    updateNewestLikes(recentLikes) {
+        this.extendedLikesInfo.newestLikes = recentLikes.map((likeDoc)=>{
+            return {
+                addedAt: likeDoc.updatedAt.toISOString(),
+                userId: likeDoc.userId,
+                login: likeDoc.login
+            };
+        });
+    }
 };
 _ts_decorate([
     (0, _mongoose.Prop)({

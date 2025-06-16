@@ -41,7 +41,7 @@ let UsersController = class UsersController {
             email: body.email,
             password: body.password
         };
-        const { userId } = await this.usersService.createUser(input);
+        const { userId } = await this.usersService.createUserByAdmin(input);
         const user = await this.usersQueryRepo.getUserById(userId);
         if (!user) {
             throw new _domainexceptions.DomainException({

@@ -17,10 +17,10 @@ function _ts_decorate(decorators, target, key, desc) {
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 }
 let JwtOptionalAuthGuard = class JwtOptionalAuthGuard extends (0, _passport.AuthGuard)('jwt') {
-    canActivate(context) {
-        return super.canActivate(context);
-    }
-    handleRequest(err, user, info, context, status) {
+    // canActivate(context: ExecutionContext) {
+    //   return super.canActivate(context);
+    // }
+    handleRequest(err, user) {
         //NOTE:super.handleRequest(err, user, info, context, status);
         // мы не будем вызывать здесь базовый метод суперкласса, в нём написано вот это:
         // кидаем ошибку если нет юзера или если другая ошибка (например JWT протух)...

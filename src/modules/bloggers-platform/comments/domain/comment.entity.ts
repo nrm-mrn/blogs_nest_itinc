@@ -38,8 +38,10 @@ export class Comment {
     const comment = new this();
     comment.postId = dto.postId;
     comment.content = dto.content;
-    comment.commentatorInfo.userId = dto.userId;
-    comment.commentatorInfo.userLogin = dto.userLogin;
+    comment.commentatorInfo = {
+      userId: dto.userId,
+      userLogin: dto.userLogin,
+    };
     comment.likesCount = 0;
     comment.dislikesCount = 0;
 
@@ -48,6 +50,22 @@ export class Comment {
 
   updateComment(dto: UpdateCommentDomainDto) {
     this.content = dto.content;
+  }
+
+  addLike() {
+    this.likesCount += 1;
+  }
+
+  removeLike() {
+    this.likesCount -= 1;
+  }
+
+  addDislike() {
+    this.dislikesCount += 1;
+  }
+
+  removeDislike() {
+    this.dislikesCount -= 1;
   }
 
   markDeleted() {

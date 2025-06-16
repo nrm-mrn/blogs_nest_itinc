@@ -24,6 +24,15 @@ const _postentity = require("./posts/domain/post.entity");
 const _commentscontroller = require("./comments/api/comments.controller");
 const _commentsqueryrepository = require("./comments/infrastructure/comments.query-repository");
 const _commententity = require("./comments/domain/comment.entity");
+const _postLikeentity = require("./posts/domain/postLike.entity");
+const _commentsrepository = require("./comments/infrastructure/comments.repository");
+const _getcommentquery = require("./comments/application/queries/get-comment.query");
+const _getcommentsforpostquery = require("./comments/application/queries/get-comments-for-post.query");
+const _createcommentusecase = require("./comments/application/usecases/create-comment.usecase");
+const _updatecommentusecase = require("./comments/application/usecases/update-comment.usecase");
+const _deletecommentusecase = require("./comments/application/usecases/delete-comment.usecase");
+const _handlecommentlikeusecase = require("./comments/application/usecases/handle-comment-like.usecase");
+const _commentlikeentity = require("./comments/domain/comment-like.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -49,8 +58,20 @@ BloggersPlatformModule = _ts_decorate([
             ]),
             _mongoose.MongooseModule.forFeature([
                 {
+                    name: _postLikeentity.PostLike.name,
+                    schema: _postLikeentity.PostLikeSchema
+                }
+            ]),
+            _mongoose.MongooseModule.forFeature([
+                {
                     name: _commententity.Comment.name,
                     schema: _commententity.CommentSchema
+                }
+            ]),
+            _mongoose.MongooseModule.forFeature([
+                {
+                    name: _commentlikeentity.CommentLike.name,
+                    schema: _commentlikeentity.CommentLikeSchema
                 }
             ]),
             _useraccountsmodule.UserAccountsModule
@@ -67,7 +88,14 @@ BloggersPlatformModule = _ts_decorate([
             _postsservice.PostsService,
             _postsqueryrepository.PostsQueryRepository,
             _postsrepository.PostsRepository,
-            _commentsqueryrepository.CommentsQueryRepository
+            _commentsqueryrepository.CommentsQueryRepository,
+            _commentsrepository.CommentsRepository,
+            _getcommentquery.GetCommentQueryHandler,
+            _getcommentsforpostquery.GetCommentsByPostQueryHandler,
+            _createcommentusecase.CreateCommentCommandHandler,
+            _updatecommentusecase.UpdateCommentCommandHandler,
+            _deletecommentusecase.DeleteCommentCommandHandler,
+            _handlecommentlikeusecase.CommentLikeCommandHandler
         ]
     })
 ], BloggersPlatformModule);

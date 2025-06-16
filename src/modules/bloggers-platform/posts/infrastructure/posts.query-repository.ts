@@ -6,17 +6,21 @@ import { PaginatedViewDto } from 'src/core/dto/base.paginated.view-dto';
 import { PostViewDto } from '../api/view-dto/posts.view-dto';
 import { DomainException } from 'src/core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes';
+import { PostLike, PostLikeModelType } from '../domain/postLike.entity';
 
 @Injectable()
 export class PostsQueryRepository {
   constructor(
     @InjectModel(Post.name) private readonly PostModel: PostModelType,
+    @InjectModel(PostLike.name)
+    private readonly PostLikeModel: PostLikeModelType,
   ) {}
 
   async getAllPosts(
     dto: GetPostsQueryParams,
+    userId?: string,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    const posts = await this.PostModel.find({deletedAt: null})
+    const posts = await this.PostModel.find({ deletedAt: null })
       .sort({ [dto.sortBy]: dto.sortDirection })
       .skip(dto.calculateSkip())
       .limit(dto.pageSize)
@@ -26,15 +30,17 @@ export class PostsQueryRepository {
       return PostViewDto.mapToView(post);
     });
 
-    // if (dto.userId) {
-    //   const postIds = posts.map((postDoc) => postDoc._id);
-    //   const likes = await PostLikeModel.find({
-    //     "userInfo.userId": dto.userId,
-    //     postId: { $in: postIds },
-    //   });
-    //   const likesMap = new Map(
-    //     likes.map((like) => [like.postId.toString(), like.status]),
-    //   );
+    if (userId) {
+      const postIds = posts.map((postDoc) => postDoc._id.toString());
+      const likes = await this.PostLikeModel.find({
+        userId,
+        postId: { $in: postIds },
+      });
+      const likesMap = new Map(likes.map((like) => [like.postId, like.status]));
+      postsView.forEach((post) => {
+        post.setLike(likesMap);
+      });
+    }
 
     return PaginatedViewDto.mapToView({
       items: postsView,
@@ -44,7 +50,10 @@ export class PostsQueryRepository {
     });
   }
 
-  async findPostOrNotFoundFail(postId: string): Promise<PostViewDto> {
+  async findPostOrNotFoundFail(
+    postId: string,
+    userId?: string,
+  ): Promise<PostViewDto> {
     const post = await this.PostModel.findOne({
       _id: postId,
       deletedAt: null,
@@ -54,6 +63,16 @@ export class PostsQueryRepository {
         message: 'Post not found',
       }),
     );
-    return PostViewDto.mapToView(post);
+    const postView = PostViewDto.mapToView(post);
+    if (userId) {
+      const like = await this.PostLikeModel.findOne({
+        userId,
+        postId,
+      });
+      if (like) {
+        postView.setLike(like);
+      }
+    }
+    return postView;
   }
 }

@@ -29,13 +29,27 @@ let CommentViewDto = class CommentViewDto {
         const dto = new CommentViewDto();
         dto.id = comm._id.toString();
         dto.content = comm.content;
-        dto.commentatorInfo.userId = comm.commentatorInfo.userId;
-        dto.commentatorInfo.userLogin = comm.commentatorInfo.userLogin;
+        dto.commentatorInfo = {
+            userId: comm.commentatorInfo.userId,
+            userLogin: comm.commentatorInfo.userLogin
+        };
         dto.createdAt = comm.createdAt.toISOString();
-        dto.likesInfo.myStatus = _commentlikeentity.CommentLikeStatus.NONE;
-        dto.likesInfo.likesCount = comm.likesCount;
-        dto.likesInfo.dislikesCount = comm.dislikesCount;
+        dto.likesInfo = {
+            myStatus: _commentlikeentity.CommentLikeStatus.NONE,
+            likesCount: comm.likesCount,
+            dislikesCount: comm.dislikesCount
+        };
         return dto;
+    }
+    setLike(likes) {
+        if (likes instanceof Map) {
+            const likeStatus = likes.get(this.id);
+            if (likeStatus) {
+                this.likesInfo.myStatus = likeStatus;
+            }
+            return;
+        }
+        this.likesInfo.myStatus = likes.status;
     }
 };
 

@@ -18,6 +18,7 @@ const _domainexceptions = require("../../../core/exceptions/domain-exceptions");
 const _domainexceptioncodes = require("../../../core/exceptions/domain-exception-codes");
 const _mongoose = /*#__PURE__*/ _interop_require_default(require("mongoose"));
 const _devicessecurityservice = require("./devices-security.service");
+const _authtokeninjectconstants = require("../constants/auth-token.inject-constants");
 function _interop_require_default(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
@@ -31,6 +32,11 @@ function _ts_decorate(decorators, target, key, desc) {
 }
 function _ts_metadata(k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+}
+function _ts_param(paramIndex, decorator) {
+    return function(target, key) {
+        decorator(target, key, paramIndex);
+    };
 }
 let AuthService = class AuthService {
     async checkCredentials(credentials) {
@@ -56,8 +62,8 @@ let AuthService = class AuthService {
         const accTInput = {
             id: user._id.toString()
         };
-        const accessToken = this.jwtService.sign(accTInput);
-        const refreshToken = this.jwtService.sign(rtInput);
+        const accessToken = this.jwtAccesTokService.sign(accTInput);
+        const refreshToken = this.jwtRefreshTokService.sign(rtInput);
         const sessionInput = {
             deviceId: rtInput.deviceId,
             userId: rtInput.userId,
@@ -109,15 +115,15 @@ let AuthService = class AuthService {
         return;
     }
     async reissueTokensPair(token) {
-        const payload = this.jwtService.decode(token);
+        const payload = this.jwtRefreshTokService.decode(token);
         await this.sessionsService.getSession(payload.deviceId, payload.iat);
         const rtInput = {
             userId: payload.userId,
             deviceId: new _mongoose.default.Types.ObjectId().toString(),
             iat: new Date().getTime()
         };
-        const refreshToken = this.jwtService.sign(rtInput);
-        const accessToken = this.jwtService.sign({
+        const refreshToken = this.jwtRefreshTokService.sign(rtInput);
+        const accessToken = this.jwtAccesTokService.sign({
             id: payload.userId
         });
         await this.sessionsService.refreshSession(payload.deviceId, rtInput.iat);
@@ -143,10 +149,11 @@ let AuthService = class AuthService {
     async confirmPassword(input) {
         await this.usersService.confirmPassword(input);
     }
-    constructor(usersService, passHashService, jwtService, sessionsService, mailerService, templateFactory){
+    constructor(usersService, passHashService, jwtAccesTokService, jwtRefreshTokService, sessionsService, mailerService, templateFactory){
         this.usersService = usersService;
         this.passHashService = passHashService;
-        this.jwtService = jwtService;
+        this.jwtAccesTokService = jwtAccesTokService;
+        this.jwtRefreshTokService = jwtRefreshTokService;
         this.sessionsService = sessionsService;
         this.mailerService = mailerService;
         this.templateFactory = templateFactory;
@@ -154,10 +161,13 @@ let AuthService = class AuthService {
 };
 AuthService = _ts_decorate([
     (0, _common.Injectable)(),
+    _ts_param(2, (0, _common.Inject)(_authtokeninjectconstants.ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)),
+    _ts_param(3, (0, _common.Inject)(_authtokeninjectconstants.REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         typeof _usersservice.UsersService === "undefined" ? Object : _usersservice.UsersService,
         typeof _passHashservice.HashService === "undefined" ? Object : _passHashservice.HashService,
+        typeof _jwt.JwtService === "undefined" ? Object : _jwt.JwtService,
         typeof _jwt.JwtService === "undefined" ? Object : _jwt.JwtService,
         typeof _devicessecurityservice.SessionsService === "undefined" ? Object : _devicessecurityservice.SessionsService,
         typeof _mailer.MailerService === "undefined" ? Object : _mailer.MailerService,

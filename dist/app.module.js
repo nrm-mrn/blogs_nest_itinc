@@ -19,6 +19,7 @@ const _domainexceptionfilter = require("./core/exceptions/filters/domain-excepti
 const _useraccountsmodule = require("./modules/user-accounts/user-accounts.module");
 const _testingAPImodule = require("./testing/testingAPI.module");
 const _notificationsmodule = require("./modules/notifications/notifications.module");
+const _cqrs = require("@nestjs/cqrs");
 function _interop_require_default(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
@@ -53,6 +54,7 @@ AppModule = _ts_decorate([
                     _config.ConfigService
                 ]
             }),
+            _cqrs.CqrsModule.forRoot({}),
             _bloggersplatformmodule.BloggersPlatformModule,
             _useraccountsmodule.UserAccountsModule,
             _notificationsmodule.NotificationsModule,

@@ -2,14 +2,14 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-Object.defineProperty(exports, "ExtractUserFromRequest", {
+Object.defineProperty(exports, "ExtractUserFromRequestIfExists", {
     enumerable: true,
     get: function() {
-        return ExtractUserFromRequest;
+        return ExtractUserFromRequestIfExists;
     }
 });
 const _common = require("@nestjs/common");
-const ExtractUserFromRequest = (0, _common.createParamDecorator)((data, context)=>{
+const ExtractUserFromRequestIfExists = (0, _common.createParamDecorator)((data, context)=>{
     const request = context.switchToHttp().getRequest();
     const user = request.user;
     if (!user) {

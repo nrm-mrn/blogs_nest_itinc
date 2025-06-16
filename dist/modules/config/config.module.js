@@ -22,13 +22,14 @@ const getSettings = ()=>({
         }),
         adminUsername: process.env.ADMIN_USERNAME,
         adminPassword: process.env.ADMIN_PASSWORD,
-        jwtSecret: process.env.JWT_SECRET,
-        jwtExpiration: process.env.JWT_EXP_TIME_IN_MINUTES,
+        jwtAccessSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
+        jwtRefreshSecret: process.env.JWT_REFRESH_TOKEN_SECRET,
+        accessTokenDuration: +process.env.JWT_EXP_TIME_IN_MINUTES,
+        refreshTokenDuration: +process.env.REFRESHT_TIME_IN_MINUTES,
         mailerHost: process.env.EMAIL_HOST,
         mailerLogin: process.env.EMAIL,
         mailerPass: process.env.EMAIL_PASS,
-        confirmationCodesDomain: process.env.CONFIRMATION_CODES_DOMAIN,
-        refreshTokenDuration: +process.env.REFRESHT_TIME_IN_MINUTES
+        confirmationCodesDomain: process.env.CONFIRMATION_CODES_DOMAIN
     });
 const _default = getSettings;
 

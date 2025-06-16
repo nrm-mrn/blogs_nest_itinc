@@ -15,6 +15,7 @@ const _devicessecurityqueryrepository = require("../infrastructure/query/devices
 const _jwtrefreshtokenguard = require("../guards/bearer/jwt-refresh-token-guard");
 const _express = require("express");
 const _objectidvalidationpipeservice = require("../../../core/pipes/object-id-validation-pipe.service");
+const _authtokeninjectconstants = require("../constants/auth-token.inject-constants");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -32,7 +33,7 @@ function _ts_param(paramIndex, decorator) {
 let DevicesSecurityController = class DevicesSecurityController {
     async getDevices(req) {
         const token = req.cookies.refreshToken;
-        const payload = this.jwtService.decode(token);
+        const payload = this.jwtRefreshTokService.decode(token);
         return this.sessionsQueryRepo.getSessionsOrFail(payload.userId);
     }
     async deleteAnotherSession(req, deviceId) {
@@ -42,9 +43,9 @@ let DevicesSecurityController = class DevicesSecurityController {
     async deleteOtherSessions(req) {
         return this.sessionsService.deleteOtherSessions(req.cookies.refreshToken);
     }
-    constructor(sessionsService, jwtService, sessionsQueryRepo){
+    constructor(sessionsService, jwtRefreshTokService, sessionsQueryRepo){
         this.sessionsService = sessionsService;
-        this.jwtService = jwtService;
+        this.jwtRefreshTokService = jwtRefreshTokService;
         this.sessionsQueryRepo = sessionsQueryRepo;
     }
 };
@@ -83,6 +84,7 @@ _ts_decorate([
 DevicesSecurityController = _ts_decorate([
     (0, _common.UseGuards)(_jwtrefreshtokenguard.RefreshTokenGuard),
     (0, _common.Controller)('devices'),
+    _ts_param(1, (0, _common.Inject)(_authtokeninjectconstants.REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
         typeof _devicessecurityservice.SessionsService === "undefined" ? Object : _devicessecurityservice.SessionsService,

@@ -8,15 +8,15 @@ export class EmailConfirmation {
    * @type: {string}
    * @required
    */
-  @Prop({ type: String, required: true })
-  confirmationCode: UUID;
+  @Prop({ type: String, required: false })
+  confirmationCode: UUID | null;
   /**
    * after this date confirmation code no longer valid
    * @type: {Date}
    * @required
    */
-  @Prop({ type: Date, required: true })
-  expirationDate: Date;
+  @Prop({ type: Date, required: false })
+  expirationDate: Date | null;
   /**
    * flag marks user email as confirmed
    * @type: {boolean}

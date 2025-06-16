@@ -2,10 +2,11 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { UserContextDto } from '../dto/user-context.dto';
 import { DomainException } from 'src/core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes';
+import { Request } from 'express';
 
 export const ExtractUserFromRequest = createParamDecorator(
   (data: unknown, context: ExecutionContext): UserContextDto => {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
 
     const user = request.user as UserContextDto;
 

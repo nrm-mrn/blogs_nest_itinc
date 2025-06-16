@@ -139,7 +139,7 @@ export class User {
    * marks email as confirmed
    */
   confirmEmail() {
-    if (!this.emailConfirmation) {
+    if (!this.emailConfirmation || !this.emailConfirmation.expirationDate) {
       throw new DomainException({
         code: DomainExceptionCode.InternalServerError,
         message: 'No email confirmation object in entity',
@@ -163,6 +163,14 @@ export class User {
       });
     }
     this.emailConfirmation.isConfirmed = true;
+  }
+
+  confirmEmailByAdmin() {
+    this.emailConfirmation = {
+      confirmationCode: null,
+      expirationDate: null,
+      isConfirmed: true,
+    };
   }
 
   markDeleted() {

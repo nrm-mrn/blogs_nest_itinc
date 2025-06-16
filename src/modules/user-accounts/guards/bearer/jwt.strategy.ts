@@ -11,7 +11,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('jwtSecret') as string,
+      secretOrKey: configService.get('jwtAccessSecret') as string,
     });
   }
 
@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
    * функция принимает payload из jwt токена и возвращает то, что впоследствии будет записано в req.user
    * @param payload
    */
-  async validate(payload: UserContextDto): Promise<UserContextDto> {
-    return payload;
+  validate(payload: { id: string; iat: number; exp: number }): UserContextDto {
+    return { userId: payload.id };
   }
 }

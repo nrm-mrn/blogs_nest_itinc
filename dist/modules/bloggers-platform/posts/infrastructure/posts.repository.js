@@ -13,6 +13,7 @@ const _mongoose = require("@nestjs/mongoose");
 const _postentity = require("../domain/post.entity");
 const _domainexceptioncodes = require("../../../../core/exceptions/domain-exception-codes");
 const _domainexceptions = require("../../../../core/exceptions/domain-exceptions");
+const _postLikeentity = require("../domain/postLike.entity");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -28,9 +29,9 @@ function _ts_param(paramIndex, decorator) {
     };
 }
 let PostsRepository = class PostsRepository {
-    async save(post) {
-        await post.save();
-        return post._id.toString();
+    async save(doc) {
+        await doc.save();
+        return doc._id.toString();
     }
     async findById(postId) {
         const post = await this.PostModel.findOne({
@@ -66,31 +67,64 @@ let PostsRepository = class PostsRepository {
         });
     }
     async deletePostsByBlogId(blogId) {
-        const res = await this.PostModel.deleteMany({
-            blogId: blogId
+        const ids = await this.PostModel.find({
+            blogId
+        }).then((posts)=>{
+            return posts.map((post)=>post._id.toString());
         });
-        if (res.acknowledged) {
-            return;
-        }
-        throw new _domainexceptions.DomainException({
-            code: _domainexceptioncodes.DomainExceptionCode.InternalServerError,
-            message: 'Failed to delete posts by blog'
+        this.PostModel.updateMany({
+            blogId: blogId
+        }, {
+            deletedAt: new Date()
+        });
+        this.PostLikeModel.deleteMany({
+            postId: {
+                $in: ids
+            }
         });
     }
     async deletePost(post) {
         post.markDeleted();
-        return this.save(post);
+        await Promise.all([
+            this.PostLikeModel.deleteOne({
+                postId: post._id.toString()
+            }),
+            this.save(post)
+        ]);
     }
-    constructor(PostModel){
+    async findPostIdsByBlog(blogId) {
+        return this.PostModel.find({
+            blogId
+        }).then((posts)=>posts.map((post)=>post._id.toString()));
+    }
+    async findPostLikeByUserId(postId, userId) {
+        return this.PostLikeModel.findOne({
+            postId,
+            userId
+        });
+    }
+    async getRecentLikeDocsForPost(postId, status) {
+        const recentLikesDocs = await this.PostLikeModel.find({
+            postId,
+            status
+        }).sort({
+            updatedAt: 'desc'
+        }).limit(3);
+        return recentLikesDocs;
+    }
+    constructor(PostModel, PostLikeModel){
         this.PostModel = PostModel;
+        this.PostLikeModel = PostLikeModel;
     }
 };
 PostsRepository = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_param(0, (0, _mongoose.InjectModel)(_postentity.Post.name)),
+    _ts_param(1, (0, _mongoose.InjectModel)(_postLikeentity.PostLike.name)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _postentity.PostModelType === "undefined" ? Object : _postentity.PostModelType
+        typeof _postentity.PostModelType === "undefined" ? Object : _postentity.PostModelType,
+        typeof _postLikeentity.PostLikeModelType === "undefined" ? Object : _postLikeentity.PostLikeModelType
     ])
 ], PostsRepository);
 

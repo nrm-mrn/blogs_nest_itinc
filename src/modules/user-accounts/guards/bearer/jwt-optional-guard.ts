@@ -3,17 +3,11 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class JwtOptionalAuthGuard extends AuthGuard('jwt') {
-  canActivate(context: ExecutionContext) {
-    return super.canActivate(context);
-  }
+  // canActivate(context: ExecutionContext) {
+  //   return super.canActivate(context);
+  // }
 
-  handleRequest(
-    err: any,
-    user: any,
-    info: any,
-    context: ExecutionContext,
-    status?: any,
-  ) {
+  handleRequest(err: any, user: any) {
     //NOTE:super.handleRequest(err, user, info, context, status);
     // мы не будем вызывать здесь базовый метод суперкласса, в нём написано вот это:
     // кидаем ошибку если нет юзера или если другая ошибка (например JWT протух)...

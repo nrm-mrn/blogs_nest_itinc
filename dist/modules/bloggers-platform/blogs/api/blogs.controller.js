@@ -18,6 +18,7 @@ const _createblogpostinputdto = require("./input-dto/create-blog-post.input-dto"
 const _postsqueryrepository = require("../../posts/infrastructure/posts.query-repository");
 const _getblogpostsdto = require("./view-dto/get-blog-posts-dto");
 const _getblogpostsqueryparamsinputdto = require("./input-dto/get-blog-posts-query-params.input-dto");
+const _basicauthguard = require("../../../user-accounts/guards/basic/basic-auth.guard");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -93,6 +94,7 @@ _ts_decorate([
     _ts_metadata("design:returntype", Promise)
 ], BlogsController.prototype, "getBlogs", null);
 _ts_decorate([
+    (0, _common.UseGuards)(_basicauthguard.BasicAuthGuard),
     (0, _common.Post)(),
     (0, _common.HttpCode)(_common.HttpStatus.CREATED),
     _ts_param(0, (0, _common.Body)()),
@@ -103,6 +105,7 @@ _ts_decorate([
     _ts_metadata("design:returntype", Promise)
 ], BlogsController.prototype, "createBlog", null);
 _ts_decorate([
+    (0, _common.UseGuards)(_basicauthguard.BasicAuthGuard),
     (0, _common.Post)(':blogId/posts'),
     (0, _common.HttpCode)(_common.HttpStatus.CREATED),
     _ts_param(0, (0, _common.Param)('blogId', _objectidvalidationpipeservice.ObjectIdValidationPipe)),
@@ -137,6 +140,7 @@ _ts_decorate([
     _ts_metadata("design:returntype", Promise)
 ], BlogsController.prototype, "getPostsForBlog", null);
 _ts_decorate([
+    (0, _common.UseGuards)(_basicauthguard.BasicAuthGuard),
     (0, _common.Put)(':id'),
     (0, _common.HttpCode)(_common.HttpStatus.NO_CONTENT),
     _ts_param(0, (0, _common.Param)('id', _objectidvalidationpipeservice.ObjectIdValidationPipe)),
@@ -149,6 +153,7 @@ _ts_decorate([
     _ts_metadata("design:returntype", Promise)
 ], BlogsController.prototype, "updateBlog", null);
 _ts_decorate([
+    (0, _common.UseGuards)(_basicauthguard.BasicAuthGuard),
     (0, _common.Delete)(':id'),
     (0, _common.HttpCode)(_common.HttpStatus.NO_CONTENT),
     _ts_param(0, (0, _common.Param)('id', _objectidvalidationpipeservice.ObjectIdValidationPipe)),

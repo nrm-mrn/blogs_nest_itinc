@@ -25,14 +25,16 @@ let JwtStrategy = class JwtStrategy extends (0, _passport.PassportStrategy)(_pas
     /**
    * функция принимает payload из jwt токена и возвращает то, что впоследствии будет записано в req.user
    * @param payload
-   */ async validate(payload) {
-        return payload;
+   */ validate(payload) {
+        return {
+            userId: payload.id
+        };
     }
     constructor(configService){
         super({
             jwtFromRequest: _passportjwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: configService.get('jwtSecret')
+            secretOrKey: configService.get('jwtAccessSecret')
         });
     }
 };

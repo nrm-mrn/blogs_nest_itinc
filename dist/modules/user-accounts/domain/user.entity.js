@@ -98,7 +98,7 @@ let User = class User {
    * checks email is not confirmed and code is not expired
    * marks email as confirmed
    */ confirmEmail() {
-        if (!this.emailConfirmation) {
+        if (!this.emailConfirmation || !this.emailConfirmation.expirationDate) {
             throw new _domainexceptions.DomainException({
                 code: _domainexceptioncodes.DomainExceptionCode.InternalServerError,
                 message: 'No email confirmation object in entity'
@@ -123,6 +123,13 @@ let User = class User {
             });
         }
         this.emailConfirmation.isConfirmed = true;
+    }
+    confirmEmailByAdmin() {
+        this.emailConfirmation = {
+            confirmationCode: null,
+            expirationDate: null,
+            isConfirmed: true
+        };
     }
     markDeleted() {
         if (this.deletedAt !== null) {

@@ -50,11 +50,15 @@ let PostViewDto = class PostViewDto {
         };
         return dto;
     }
-    setLike(likesMap) {
-        const likeStatus = likesMap.get(this.id);
-        if (likeStatus) {
-            this.extendedLikesInfo.myStatus = likeStatus;
+    setLike(likes) {
+        if (likes instanceof Map) {
+            const likeStatus = likes.get(this.id);
+            if (likeStatus) {
+                this.extendedLikesInfo.myStatus = likeStatus;
+            }
+            return;
         }
+        this.extendedLikesInfo.myStatus = likes.status;
     }
 };
 

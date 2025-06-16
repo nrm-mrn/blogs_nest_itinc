@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsQueryRepository } from '../infrastructure/posts.query-repository';
 import { PostsService } from '../application/posts.service';
@@ -24,23 +25,43 @@ import { GetPostCommentsQueryParams } from './input-dto/get-post-comments-query-
 import { CommentsQueryRepository } from '../../comments/infrastructure/comments.query-repository';
 import { CommentViewDto } from '../../comments/api/view-dto/comment-view.dto';
 import { GetPostCommentsDto } from './input-dto/get-post-comments-dto';
+import { PostLikeInputDto } from './input-dto/post-like.input-dto';
+import { ExtractUserFromRequest } from 'src/modules/user-accounts/guards/decorators/extract-user-from-request.decorator';
+import {
+  Nullable,
+  UserContextDto,
+} from 'src/modules/user-accounts/guards/dto/user-context.dto';
+import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-guard';
+import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
+import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-auth.guard';
+import { HandlePostLikeDto } from '../dto/handle-post-like.dto';
+import { ExtractUserFromRequestIfExists } from 'src/modules/user-accounts/guards/decorators/extract-user-if-exists-from-request.decorator';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { GetCommentsByPostQuery } from '../../comments/application/queries/get-comments-for-post.query';
+import { CreateCommentForPostInputDto } from './input-dto/create-comment-for-post.input-dto';
+import { CreateCommentCommand } from '../../comments/application/usecases/create-comment.usecase';
+import { GetCommentQuery } from '../../comments/application/queries/get-comment.query';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly postsQueryRepo: PostsQueryRepository,
-    private readonly commentsQueryRepo: CommentsQueryRepository,
     private readonly postsService: PostsService,
+    private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
   ) {}
 
+  @UseGuards(JwtOptionalAuthGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
   async getPosts(
     @Query() query: GetPostsQueryParams,
+    @ExtractUserFromRequestIfExists() user: UserContextDto | null,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    return this.postsQueryRepo.getAllPosts(query);
+    return this.postsQueryRepo.getAllPosts(query, user?.userId);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createPost(@Body() query: CreatePostInputDto): Promise<PostViewDto> {
@@ -48,14 +69,17 @@ export class PostsController {
     return this.postsQueryRepo.findPostOrNotFoundFail(postId);
   }
 
+  @UseGuards(JwtOptionalAuthGuard)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async getPost(
     @Param('id', ObjectIdValidationPipe) id: string,
+    @ExtractUserFromRequestIfExists() user: UserContextDto | null,
   ): Promise<PostViewDto> {
-    return this.postsQueryRepo.findPostOrNotFoundFail(id);
+    return this.postsQueryRepo.findPostOrNotFoundFail(id, user?.userId);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async editPost(
@@ -65,6 +89,7 @@ export class PostsController {
     return this.postsService.editPost(id, query);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(
@@ -73,63 +98,46 @@ export class PostsController {
     return this.postsService.deletePost(id);
   }
 
-  @Get(':postId/comments')
-  @HttpCode(HttpStatus.OK)
-  async getCommentsForPost(
+  @UseGuards(JwtAuthGuard)
+  @Put(':postId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async handlePostLike(
     @Param('postId', ObjectIdValidationPipe) postId: string,
-    @Query() query: GetPostCommentsQueryParams,
-  ): Promise<PaginatedViewDto<CommentViewDto[]>> {
-    const dto = Object.assign(new GetPostCommentsDto(), query, { postId });
-    return this.commentsQueryRepo.getCommentsForPosts(dto);
+    @Body() body: PostLikeInputDto,
+    @ExtractUserFromRequest() user: UserContextDto,
+  ) {
+    const dto: HandlePostLikeDto = {
+      postId,
+      userId: user.userId,
+      status: body.likeStatus,
+    };
+    return this.postsService.handlePostLike(dto);
   }
 
-  // async createCommentForPost(
-  //   req: RequestWithParamsBodyAndUserId<
-  //     { id: string },
-  //     CommentInputModel,
-  //     { id: string }
-  //   >,
-  //   res: Response<ICommentView>,
-  //   next: NextFunction,
-  // ) {
-  //   const postId = req.params.id as unknown as ObjectId;
-  //   const userId = req.user!.id;
-  //   const input: CreateCommentDto = {
-  //     postId,
-  //     userId,
-  //     content: req.body.content,
-  //   };
-  //   try {
-  //     const commentId = await this.commentsService.createComment(input);
-  //     const comment = await this.commentsQueryRepo.getCommentById(commentId);
-  //     res.status(HttpStatuses.Created).send(comment);
-  //     return;
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // }
-  //
-  // async getCommentsForPost(
-  //   req: RequestWithParamsAndQuery<{ id: string }, PagingQuery>,
-  //   res: Response<PagedResponse<ICommentView>>,
-  //   next: NextFunction,
-  // ) {
-  //   const postId = req.params.id as unknown as ObjectId;
-  //   const { ...pagination } = req.query as PagingFilter;
-  //   const dto: GetCommentsDto = {
-  //     postId,
-  //     paginator: pagination,
-  //   };
-  //   if (req.user?.id) {
-  //     const userId = createObjId(req.user.id);
-  //     dto.userId = userId;
-  //   }
-  //   try {
-  //     const data = await this.commentsQueryRepo.getComments(dto);
-  //     res.status(HttpStatuses.Success).send(data);
-  //     return;
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Post(':postId/comments')
+  @HttpCode(HttpStatus.CREATED)
+  async createCommentForPost(
+    @Body() body: CreateCommentForPostInputDto,
+    @Param('postId', ObjectIdValidationPipe) postId: string,
+    @ExtractUserFromRequest() user: UserContextDto,
+  ): Promise<CommentViewDto> {
+    const commentId = await this.commandBus.execute(
+      new CreateCommentCommand(postId, user.userId, body.content),
+    );
+    return this.queryBus.execute(new GetCommentQuery(commentId, user.userId));
+  }
+
+  @UseGuards(JwtOptionalAuthGuard)
+  @Get(':id/comments')
+  @HttpCode(HttpStatus.OK)
+  async getCommentsForPost(
+    @Param('id', ObjectIdValidationPipe) postId: string,
+    @Query() query: GetPostCommentsQueryParams,
+    @ExtractUserFromRequestIfExists() user: Nullable<UserContextDto>,
+  ): Promise<PaginatedViewDto<CommentViewDto[]>> {
+    return this.queryBus.execute(
+      new GetCommentsByPostQuery(query, postId, user.userId),
+    );
+  }
 }

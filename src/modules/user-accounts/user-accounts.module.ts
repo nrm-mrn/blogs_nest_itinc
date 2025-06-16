@@ -7,8 +7,8 @@ import { UsersQueryRepository } from './infrastructure/query/users.query-reposit
 import { UsersRepository } from './infrastructure/users.repository';
 import { BasicAuthGuard } from './guards/basic/basic-auth.guard';
 import { HashService } from './application/passHash.service';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../config/config.module';
 import { DeviceAuthSession, SessionSchema } from './domain/session.entity';
 import { AuthController } from './api/auth.controller';
@@ -19,25 +19,19 @@ import { EmailTemplates } from '../notifications/email.templates';
 import { EmailService } from '../notifications/email.service';
 import { AuthService } from './application/auth.service';
 import { SessionsService } from './application/devices-security.service';
-import { MailerModule } from '@nestjs-modules/mailer';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { DevicesSecurityRepository } from './infrastructure/devices-security.repository';
 import { SessionsQueryRepository } from './infrastructure/query/devices-security.query-repository';
+import {
+  ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+  REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+} from './constants/auth-token.inject-constants';
+import { UsersExternalService } from './application/users.external-service';
+import { JwtStrategy } from './guards/bearer/jwt.strategy';
 
 @Module({
   imports: [
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService<ConfigurationType>) => {
-        return {
-          secret: configService.get('jwtSecret'),
-          signOptions: {
-            expiresIn: `${configService.get('jwtExpiration')}m`,
-          },
-        };
-      },
-      inject: [ConfigService],
-    }),
+    JwtModule.register({}),
     NotificationsModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([
@@ -46,11 +40,37 @@ import { SessionsQueryRepository } from './infrastructure/query/devices-security
   ],
   controllers: [UsersController, AuthController, DevicesSecurityController],
   providers: [
+    {
+      provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+      useFactory: (configService: ConfigService<ConfigurationType>) => {
+        return new JwtService({
+          secret: configService.get('jwtAccessSecret'),
+          signOptions: {
+            expiresIn: `${configService.get('accessTokenDuration')}m`,
+          },
+        });
+      },
+      inject: [ConfigService],
+    },
+    {
+      provide: REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+      useFactory: (configService: ConfigService<ConfigurationType>) => {
+        return new JwtService({
+          secret: configService.get('jwtRefreshSecret'),
+          signOptions: {
+            expiresIn: `${configService.get('refreshTokenDuration')}m`,
+          },
+        });
+      },
+      inject: [ConfigService],
+    },
     UsersService,
+    UsersExternalService,
     UsersQueryRepository,
     UsersRepository,
     BasicAuthGuard,
     JwtAuthGuard,
+    JwtStrategy,
     RefreshTokenGuard,
     HashService,
     EmailTemplates,
@@ -60,6 +80,6 @@ import { SessionsQueryRepository } from './infrastructure/query/devices-security
     DevicesSecurityRepository,
     SessionsQueryRepository,
   ],
-  exports: [BasicAuthGuard, JwtAuthGuard],
+  exports: [BasicAuthGuard, JwtAuthGuard, UsersExternalService],
 })
 export class UserAccountsModule {}

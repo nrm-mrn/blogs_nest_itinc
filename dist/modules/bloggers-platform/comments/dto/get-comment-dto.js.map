@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/modules/bloggers-platform/comments/dto/get-comment-dto.ts"],"sourcesContent":["export class GetCommentDto {\n  commentId: string;\n  userId?: string;\n}\n"],"names":["GetCommentDto"],"mappings":";;;;+BAAaA;;;eAAAA;;;AAAN,IAAA,AAAMA,gBAAN,MAAMA;AAGb"}
