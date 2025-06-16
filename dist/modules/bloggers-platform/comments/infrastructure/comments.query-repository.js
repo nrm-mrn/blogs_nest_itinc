@@ -32,13 +32,14 @@ function _ts_param(paramIndex, decorator) {
 }
 let CommentsQueryRepository = class CommentsQueryRepository {
     async getCommentsForPost(dto) {
-        const comments = await this.CommentModel.find({
+        const filter = {
             postId: dto.postId,
             deletedAt: null
-        }).sort({
+        };
+        const comments = await this.CommentModel.find(filter).sort({
             [dto.query.sortBy]: dto.query.sortDirection
         }).skip(dto.query.calculateSkip()).limit(dto.query.pageSize).exec();
-        const total = await this.CommentModel.countDocuments().exec();
+        const total = await this.CommentModel.countDocuments(filter).exec();
         const commentsView = comments.map((comment)=>_commentviewdto.CommentViewDto.mapToView(comment));
         if (dto.userId) {
             const commentIds = comments.map((commentDoc)=>commentDoc._id.toString());

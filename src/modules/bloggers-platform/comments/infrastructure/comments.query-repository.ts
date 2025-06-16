@@ -23,15 +23,16 @@ export class CommentsQueryRepository {
   async getCommentsForPost(
     dto: GetCommentsForPostQueryDto,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
-    const comments = await this.CommentModel.find({
+    const filter = {
       postId: dto.postId,
       deletedAt: null,
-    })
+    };
+    const comments = await this.CommentModel.find(filter)
       .sort({ [dto.query.sortBy]: dto.query.sortDirection })
       .skip(dto.query.calculateSkip())
       .limit(dto.query.pageSize)
       .exec();
-    const total = await this.CommentModel.countDocuments().exec();
+    const total = await this.CommentModel.countDocuments(filter).exec();
     const commentsView = comments.map((comment) =>
       CommentViewDto.mapToView(comment),
     );

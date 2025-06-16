@@ -18,6 +18,7 @@ _export(exports, {
 });
 const _cqrs = require("@nestjs/cqrs");
 const _commentsqueryrepository = require("../../infrastructure/comments.query-repository");
+const _postsrepository = require("../../../posts/infrastructure/posts.repository");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -36,17 +37,20 @@ let GetCommentsByPostQuery = class GetCommentsByPostQuery {
 };
 let GetCommentsByPostQueryHandler = class GetCommentsByPostQueryHandler {
     async execute(query) {
+        await this.postsRepository.findOrNotFoundFail(query.postId);
         return this.commentsQueryRepository.getCommentsForPost(query);
     }
-    constructor(commentsQueryRepository){
+    constructor(commentsQueryRepository, postsRepository){
         this.commentsQueryRepository = commentsQueryRepository;
+        this.postsRepository = postsRepository;
     }
 };
 GetCommentsByPostQueryHandler = _ts_decorate([
     (0, _cqrs.QueryHandler)(GetCommentsByPostQuery),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _commentsqueryrepository.CommentsQueryRepository === "undefined" ? Object : _commentsqueryrepository.CommentsQueryRepository
+        typeof _commentsqueryrepository.CommentsQueryRepository === "undefined" ? Object : _commentsqueryrepository.CommentsQueryRepository,
+        typeof _postsrepository.PostsRepository === "undefined" ? Object : _postsrepository.PostsRepository
     ])
 ], GetCommentsByPostQueryHandler);
 
