@@ -37,6 +37,7 @@ let DeleteCommentCommand = class DeleteCommentCommand {
 };
 let DeleteCommentCommandHandler = class DeleteCommentCommandHandler {
     async execute(command) {
+        console.log(command);
         const comment = await this.commentsRepository.findCommentByIdOrFail(command.commentId);
         if (comment.commentatorInfo.userId !== command.userId) {
             throw new _domainexceptions.DomainException({

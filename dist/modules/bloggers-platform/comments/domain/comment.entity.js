@@ -110,6 +110,14 @@ _ts_decorate([
     }),
     _ts_metadata("design:type", Number)
 ], Comment.prototype, "dislikesCount", void 0);
+_ts_decorate([
+    (0, _mongoose.Prop)({
+        type: Date,
+        nullable: true,
+        default: null
+    }),
+    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+], Comment.prototype, "deletedAt", void 0);
 Comment = _ts_decorate([
     (0, _mongoose.Schema)({
         timestamps: true

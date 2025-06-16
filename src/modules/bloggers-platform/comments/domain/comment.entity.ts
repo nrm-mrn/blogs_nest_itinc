@@ -32,6 +32,8 @@ export class Comment {
   dislikesCount: number;
 
   createdAt: Date;
+
+  @Prop({ type: Date, nullable: true, default: null })
   deletedAt: Date;
 
   static createComment(dto: CreateCommentDomainDto): CommentDocument {

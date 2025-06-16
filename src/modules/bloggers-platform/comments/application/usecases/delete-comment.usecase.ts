@@ -16,6 +16,7 @@ export class DeleteCommentCommandHandler
 {
   constructor(private readonly commentsRepository: CommentsRepository) {}
   async execute(command: DeleteCommentCommand): Promise<any> {
+    console.log(command);
     const comment = await this.commentsRepository.findCommentByIdOrFail(
       command.commentId,
     );
