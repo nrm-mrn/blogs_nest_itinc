@@ -58,7 +58,7 @@ let AuthService = class AuthService {
         const rtInput = {
             userId: user._id.toString(),
             deviceId: new _mongoose.default.Types.ObjectId().toString(),
-            iat: _luxon.DateTime.utc().toSeconds()
+            iat: Math.floor(_luxon.DateTime.utc().toSeconds())
         };
         const accTInput = {
             id: user._id.toString()
@@ -119,7 +119,7 @@ let AuthService = class AuthService {
         const rtInput = {
             userId: payload.userId,
             deviceId: new _mongoose.default.Types.ObjectId().toString(),
-            iat: _luxon.DateTime.utc().toSeconds()
+            iat: Math.floor(_luxon.DateTime.utc().toSeconds())
         };
         const refreshToken = this.jwtRefreshTokService.sign(rtInput);
         const accessToken = this.jwtAccesTokService.sign({

@@ -59,7 +59,7 @@ export class AuthService {
     const rtInput: CreateRefreshTokenDto = {
       userId: user._id.toString(),
       deviceId: new mongoose.Types.ObjectId().toString(),
-      iat: DateTime.utc().toSeconds(),
+      iat: Math.floor(DateTime.utc().toSeconds()),
     };
     const accTInput: CreateAccessTokenDto = {
       id: user._id.toString(),
@@ -141,7 +141,7 @@ export class AuthService {
     const rtInput: CreateRefreshTokenDto = {
       userId: payload.userId,
       deviceId: new mongoose.Types.ObjectId().toString(),
-      iat: DateTime.utc().toSeconds(),
+      iat: Math.floor(DateTime.utc().toSeconds()),
     };
     const refreshToken = this.jwtRefreshTokService.sign(rtInput);
     const accessToken = this.jwtAccesTokService.sign({ id: payload.userId });

@@ -12,6 +12,7 @@ import { TestingApiModule } from './testing/testingAPI.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerExceptionFilter } from './core/exceptions/filters/throttler-exceptions.filter';
 
 @Module({
   imports: [
@@ -52,6 +53,10 @@ import { ThrottlerModule } from '@nestjs/throttler';
     {
       provide: APP_FILTER,
       useClass: AllExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ThrottlerExceptionFilter,
     },
     {
       provide: APP_FILTER,

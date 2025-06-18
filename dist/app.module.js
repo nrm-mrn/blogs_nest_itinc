@@ -21,6 +21,7 @@ const _testingAPImodule = require("./testing/testingAPI.module");
 const _notificationsmodule = require("./modules/notifications/notifications.module");
 const _cqrs = require("@nestjs/cqrs");
 const _throttler = require("@nestjs/throttler");
+const _throttlerexceptionsfilter = require("./core/exceptions/filters/throttler-exceptions.filter");
 function _interop_require_default(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
@@ -79,6 +80,10 @@ AppModule = _ts_decorate([
             {
                 provide: _core.APP_FILTER,
                 useClass: _allexceptionsfilter.AllExceptionFilter
+            },
+            {
+                provide: _core.APP_FILTER,
+                useClass: _throttlerexceptionsfilter.ThrottlerExceptionFilter
             },
             {
                 provide: _core.APP_FILTER,
