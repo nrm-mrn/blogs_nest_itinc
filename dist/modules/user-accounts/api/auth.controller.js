@@ -24,6 +24,7 @@ const _passrecoverinputdto = require("./input-dto/pass-recover.input-dto");
 const _passconfirminputdto = require("./input-dto/pass-confirm.input-dto");
 const _jwtauthguard = require("../guards/bearer/jwt-auth.guard");
 const _jwtrefreshtokenguard = require("../guards/bearer/jwt-refresh-token-guard");
+const _throttler = require("@nestjs/throttler");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -119,6 +120,7 @@ _ts_decorate([
 ], AuthController.prototype, "login", null);
 _ts_decorate([
     (0, _common.UseGuards)(_jwtrefreshtokenguard.RefreshTokenGuard),
+    (0, _throttler.SkipThrottle)(),
     (0, _common.Post)('refresh-token'),
     (0, _common.HttpCode)(_common.HttpStatus.OK),
     _ts_param(0, (0, _common.Req)()),
@@ -132,6 +134,7 @@ _ts_decorate([
 ], AuthController.prototype, "reissueTokens", null);
 _ts_decorate([
     (0, _common.UseGuards)(_jwtrefreshtokenguard.RefreshTokenGuard),
+    (0, _throttler.SkipThrottle)(),
     (0, _common.Post)('logout'),
     (0, _common.HttpCode)(_common.HttpStatus.NO_CONTENT),
     _ts_param(0, (0, _common.Req)()),
@@ -145,6 +148,7 @@ _ts_decorate([
 ], AuthController.prototype, "logout", null);
 _ts_decorate([
     (0, _common.UseGuards)(_jwtauthguard.JwtAuthGuard),
+    (0, _throttler.SkipThrottle)(),
     (0, _common.Get)('me'),
     (0, _common.HttpCode)(_common.HttpStatus.OK),
     _ts_param(0, (0, _extractuserfromrequestdecorator.ExtractUserFromRequest)()),
@@ -205,6 +209,7 @@ _ts_decorate([
     _ts_metadata("design:returntype", Promise)
 ], AuthController.prototype, "confirmPassword", null);
 AuthController = _ts_decorate([
+    (0, _common.UseGuards)(_throttler.ThrottlerGuard),
     (0, _common.Controller)('auth'),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [

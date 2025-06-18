@@ -29,7 +29,9 @@ const getSettings = ()=>({
         mailerHost: process.env.EMAIL_HOST,
         mailerLogin: process.env.EMAIL,
         mailerPass: process.env.EMAIL_PASS,
-        confirmationCodesDomain: process.env.CONFIRMATION_CODES_DOMAIN
+        confirmationCodesDomain: process.env.CONFIRMATION_CODES_DOMAIN,
+        requestsTtl: +process.env.THROTTLER_REQUESTS_TTL_IN_MS,
+        requestsLimit: +process.env.THROTTLER_REQUESTS_LIMIT
     });
 const _default = getSettings;
 

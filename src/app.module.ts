@@ -11,6 +11,7 @@ import { UserAccountsModule } from './modules/user-accounts/user-accounts.module
 import { TestingApiModule } from './testing/testingAPI.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -23,6 +24,17 @@ import { CqrsModule } from '@nestjs/cqrs';
       useFactory: (configService: ConfigService<ConfigurationType>) => ({
         uri: configService.get('dbURL'),
         dbName: configService.get('dbName'),
+      }),
+      inject: [ConfigService],
+    }),
+    ThrottlerModule.forRootAsync({
+      useFactory: (configService: ConfigService<ConfigurationType>) => ({
+        throttlers: [
+          {
+            ttl: configService.get<number>('requestsTtl')!,
+            limit: configService.get<number>('requestsLimit')!,
+          },
+        ],
       }),
       inject: [ConfigService],
     }),

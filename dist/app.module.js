@@ -20,6 +20,7 @@ const _useraccountsmodule = require("./modules/user-accounts/user-accounts.modul
 const _testingAPImodule = require("./testing/testingAPI.module");
 const _notificationsmodule = require("./modules/notifications/notifications.module");
 const _cqrs = require("@nestjs/cqrs");
+const _throttler = require("@nestjs/throttler");
 function _interop_require_default(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
@@ -49,6 +50,19 @@ AppModule = _ts_decorate([
                 useFactory: (configService)=>({
                         uri: configService.get('dbURL'),
                         dbName: configService.get('dbName')
+                    }),
+                inject: [
+                    _config.ConfigService
+                ]
+            }),
+            _throttler.ThrottlerModule.forRootAsync({
+                useFactory: (configService)=>({
+                        throttlers: [
+                            {
+                                ttl: configService.get('requestsTtl'),
+                                limit: configService.get('requestsLimit')
+                            }
+                        ]
                     }),
                 inject: [
                     _config.ConfigService

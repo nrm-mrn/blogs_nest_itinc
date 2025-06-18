@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/setup/proxie.setup.ts"],"sourcesContent":["import { NestExpressApplication } from '@nestjs/platform-express';\n\nexport function proxySetup(app: NestExpressApplication) {\n  app.set('truest proxy', true);\n}\n"],"names":["proxySetup","app","set"],"mappings":";;;;+BAEgBA;;;eAAAA;;;AAAT,SAASA,WAAWC,GAA2B;IACpDA,IAAIC,GAAG,CAAC,gBAAgB;AAC1B"}

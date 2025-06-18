@@ -30,7 +30,9 @@ import { ConfirmPasswordDto } from '../dto/confirm-password.dto';
 import { ConfirmPasswordInputDto } from './input-dto/pass-confirm.input-dto';
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard';
 import { RefreshTokenGuard } from '../guards/bearer/jwt-refresh-token-guard';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -70,6 +72,7 @@ export class AuthController {
   }
 
   @UseGuards(RefreshTokenGuard)
+  @SkipThrottle()
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   async reissueTokens(@Req() req: Request, @Res() res: Response) {
@@ -86,6 +89,7 @@ export class AuthController {
   }
 
   @UseGuards(RefreshTokenGuard)
+  @SkipThrottle()
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Req() req: Request, @Res() res: Response) {
@@ -95,6 +99,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
   @Get('me')
   @HttpCode(HttpStatus.OK)
   async getUserInfo(
