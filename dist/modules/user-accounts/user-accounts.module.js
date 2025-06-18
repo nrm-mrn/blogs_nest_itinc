@@ -72,7 +72,7 @@ UserAccountsModule = _ts_decorate([
                     return new _jwt.JwtService({
                         secret: configService.get('jwtAccessSecret'),
                         signOptions: {
-                            expiresIn: `${configService.get('accessTokenDuration')}m`
+                            expiresIn: `${configService.get('accessTokenDuration')}s`
                         }
                     });
                 },
@@ -86,7 +86,7 @@ UserAccountsModule = _ts_decorate([
                     return new _jwt.JwtService({
                         secret: configService.get('jwtRefreshSecret'),
                         signOptions: {
-                            expiresIn: `${configService.get('refreshTokenDuration')}m`
+                            expiresIn: `${configService.get('refreshTokenDuration')}s`
                         }
                     });
                 },
