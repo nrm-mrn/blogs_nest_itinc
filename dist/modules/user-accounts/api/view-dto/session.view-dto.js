@@ -8,12 +8,13 @@ Object.defineProperty(exports, "SessionViewDto", {
         return SessionViewDto;
     }
 });
+const _luxon = require("luxon");
 let SessionViewDto = class SessionViewDto {
     static mapToView(session) {
         const dto = new SessionViewDto();
         dto.ip = session.ip;
         dto.title = session.title;
-        dto.lastActiveDate = session.iat.toISOString();
+        dto.lastActiveDate = _luxon.DateTime.fromSeconds(session.iat).toISO();
         dto.deviceId = session._id.toString();
         return dto;
     }

@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { SessionDocument } from '../../domain/session.entity';
 
 export class SessionViewDto {
@@ -10,7 +11,7 @@ export class SessionViewDto {
     const dto = new SessionViewDto();
     dto.ip = session.ip;
     dto.title = session.title;
-    dto.lastActiveDate = session.iat.toISOString();
+    dto.lastActiveDate = DateTime.fromSeconds(session.iat).toISO();
     dto.deviceId = session._id.toString();
     return dto;
   }
