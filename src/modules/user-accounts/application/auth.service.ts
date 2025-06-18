@@ -140,7 +140,7 @@ export class AuthService {
 
     const rtInput: CreateRefreshTokenDto = {
       userId: payload.userId,
-      deviceId: new mongoose.Types.ObjectId().toString(),
+      deviceId: payload.deviceId,
       iat: Math.floor(DateTime.utc().toSeconds()),
     };
     const refreshToken = this.jwtRefreshTokService.sign(rtInput);

@@ -118,7 +118,7 @@ let AuthService = class AuthService {
         await this.sessionsService.getSession(payload.deviceId, payload.iat);
         const rtInput = {
             userId: payload.userId,
-            deviceId: new _mongoose.default.Types.ObjectId().toString(),
+            deviceId: payload.deviceId,
             iat: Math.floor(_luxon.DateTime.utc().toSeconds())
         };
         const refreshToken = this.jwtRefreshTokService.sign(rtInput);

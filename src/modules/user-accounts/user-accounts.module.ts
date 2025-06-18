@@ -28,6 +28,9 @@ import {
 } from './constants/auth-token.inject-constants';
 import { UsersExternalService } from './application/users.external-service';
 import { JwtStrategy } from './guards/bearer/jwt.strategy';
+import { ApiRequest, ApiRequestSchema } from './domain/apiRequest.entity';
+import { ApiRequestsStorage } from './infrastructure/apiRequests.repository';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -36,6 +39,9 @@ import { JwtStrategy } from './guards/bearer/jwt.strategy';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([
       { name: DeviceAuthSession.name, schema: SessionSchema },
+    ]),
+    MongooseModule.forFeature([
+      { name: ApiRequest.name, schema: ApiRequestSchema },
     ]),
   ],
   controllers: [UsersController, AuthController, DevicesSecurityController],
@@ -79,7 +85,13 @@ import { JwtStrategy } from './guards/bearer/jwt.strategy';
     SessionsService,
     DevicesSecurityRepository,
     SessionsQueryRepository,
+    ApiRequestsStorage,
   ],
-  exports: [BasicAuthGuard, JwtAuthGuard, UsersExternalService],
+  exports: [
+    BasicAuthGuard,
+    JwtAuthGuard,
+    UsersExternalService,
+    ApiRequestsStorage,
+  ],
 })
 export class UserAccountsModule {}

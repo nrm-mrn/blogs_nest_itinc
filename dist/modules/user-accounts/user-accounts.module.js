@@ -34,6 +34,8 @@ const _devicessecurityqueryrepository = require("./infrastructure/query/devices-
 const _authtokeninjectconstants = require("./constants/auth-token.inject-constants");
 const _usersexternalservice = require("./application/users.external-service");
 const _jwtstrategy = require("./guards/bearer/jwt.strategy");
+const _apiRequestentity = require("./domain/apiRequest.entity");
+const _apiRequestsrepository = require("./infrastructure/apiRequests.repository");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -57,6 +59,12 @@ UserAccountsModule = _ts_decorate([
                 {
                     name: _sessionentity.DeviceAuthSession.name,
                     schema: _sessionentity.SessionSchema
+                }
+            ]),
+            _mongoose.MongooseModule.forFeature([
+                {
+                    name: _apiRequestentity.ApiRequest.name,
+                    schema: _apiRequestentity.ApiRequestSchema
                 }
             ])
         ],
@@ -108,12 +116,14 @@ UserAccountsModule = _ts_decorate([
             _authservice.AuthService,
             _devicessecurityservice.SessionsService,
             _devicessecurityrepository.DevicesSecurityRepository,
-            _devicessecurityqueryrepository.SessionsQueryRepository
+            _devicessecurityqueryrepository.SessionsQueryRepository,
+            _apiRequestsrepository.ApiRequestsStorage
         ],
         exports: [
             _basicauthguard.BasicAuthGuard,
             _jwtauthguard.JwtAuthGuard,
-            _usersexternalservice.UsersExternalService
+            _usersexternalservice.UsersExternalService,
+            _apiRequestsrepository.ApiRequestsStorage
         ]
     })
 ], UserAccountsModule);

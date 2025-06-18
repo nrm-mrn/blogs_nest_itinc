@@ -30,7 +30,6 @@ import { ApiRequestsStorage } from './modules/user-accounts/infrastructure/apiRe
       inject: [ConfigService],
     }),
     ThrottlerModule.forRootAsync({
-      imports: [UserAccountsModule],
       useFactory: (
         configService: ConfigService<ConfigurationType>,
         storage: ApiRequestsStorage,
@@ -43,7 +42,7 @@ import { ApiRequestsStorage } from './modules/user-accounts/infrastructure/apiRe
         ],
         storage,
       }),
-      inject: [ConfigService, ApiRequestsStorage],
+      inject: [ConfigService],
     }),
     CqrsModule.forRoot({}),
     BloggersPlatformModule,

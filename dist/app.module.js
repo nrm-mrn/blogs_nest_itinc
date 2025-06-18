@@ -22,6 +22,7 @@ const _notificationsmodule = require("./modules/notifications/notifications.modu
 const _cqrs = require("@nestjs/cqrs");
 const _throttler = require("@nestjs/throttler");
 const _throttlerexceptionsfilter = require("./core/exceptions/filters/throttler-exceptions.filter");
+const _apiRequestsrepository = require("./modules/user-accounts/infrastructure/apiRequests.repository");
 function _interop_require_default(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
@@ -57,16 +58,21 @@ AppModule = _ts_decorate([
                 ]
             }),
             _throttler.ThrottlerModule.forRootAsync({
-                useFactory: (configService)=>({
+                imports: [
+                    _useraccountsmodule.UserAccountsModule
+                ],
+                useFactory: (configService, storage)=>({
                         throttlers: [
                             {
                                 ttl: configService.get('requestsTtl'),
                                 limit: configService.get('requestsLimit')
                             }
-                        ]
+                        ],
+                        storage
                     }),
                 inject: [
-                    _config.ConfigService
+                    _config.ConfigService,
+                    _apiRequestsrepository.ApiRequestsStorage
                 ]
             }),
             _cqrs.CqrsModule.forRoot({}),
