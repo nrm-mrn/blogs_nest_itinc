@@ -19,7 +19,7 @@ import { ObjectIdValidationPipe } from 'src/core/pipes/object-id-validation-pipe
 import { REFRESH_TOKEN_STRATEGY_INJECT_TOKEN } from '../constants/auth-token.inject-constants';
 
 @UseGuards(RefreshTokenGuard)
-@Controller('devices')
+@Controller('security')
 export class DevicesSecurityController {
   constructor(
     private readonly sessionsService: SessionsService,
@@ -28,7 +28,7 @@ export class DevicesSecurityController {
     private readonly sessionsQueryRepo: SessionsQueryRepository,
   ) {}
 
-  @Get()
+  @Get('devices')
   @HttpCode(HttpStatus.OK)
   async getDevices(@Req() req: Request) {
     const token = req.cookies.refreshToken as string;
@@ -37,7 +37,7 @@ export class DevicesSecurityController {
     return this.sessionsQueryRepo.getSessionsOrFail(payload.userId);
   }
 
-  @Delete(':deviceId')
+  @Delete('devices/:deviceId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAnotherSession(
     @Req() req: Request,
@@ -47,7 +47,7 @@ export class DevicesSecurityController {
     await this.sessionsService.deleteAnotherSession(token, deviceId);
   }
 
-  @Delete()
+  @Delete('devices/')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOtherSessions(@Req() req: Request) {
     return this.sessionsService.deleteOtherSessions(

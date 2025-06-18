@@ -50,7 +50,7 @@ let DevicesSecurityController = class DevicesSecurityController {
     }
 };
 _ts_decorate([
-    (0, _common.Get)(),
+    (0, _common.Get)('devices'),
     (0, _common.HttpCode)(_common.HttpStatus.OK),
     _ts_param(0, (0, _common.Req)()),
     _ts_metadata("design:type", Function),
@@ -60,7 +60,7 @@ _ts_decorate([
     _ts_metadata("design:returntype", Promise)
 ], DevicesSecurityController.prototype, "getDevices", null);
 _ts_decorate([
-    (0, _common.Delete)(':deviceId'),
+    (0, _common.Delete)('devices/:deviceId'),
     (0, _common.HttpCode)(_common.HttpStatus.NO_CONTENT),
     _ts_param(0, (0, _common.Req)()),
     _ts_param(1, (0, _common.Param)('deviceId', _objectidvalidationpipeservice.ObjectIdValidationPipe)),
@@ -72,7 +72,7 @@ _ts_decorate([
     _ts_metadata("design:returntype", Promise)
 ], DevicesSecurityController.prototype, "deleteAnotherSession", null);
 _ts_decorate([
-    (0, _common.Delete)(),
+    (0, _common.Delete)('devices/'),
     (0, _common.HttpCode)(_common.HttpStatus.NO_CONTENT),
     _ts_param(0, (0, _common.Req)()),
     _ts_metadata("design:type", Function),
@@ -83,7 +83,7 @@ _ts_decorate([
 ], DevicesSecurityController.prototype, "deleteOtherSessions", null);
 DevicesSecurityController = _ts_decorate([
     (0, _common.UseGuards)(_jwtrefreshtokenguard.RefreshTokenGuard),
-    (0, _common.Controller)('devices'),
+    (0, _common.Controller)('security'),
     _ts_param(1, (0, _common.Inject)(_authtokeninjectconstants.REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [

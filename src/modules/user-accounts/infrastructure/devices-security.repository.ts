@@ -19,7 +19,7 @@ export class DevicesSecurityRepository {
     return res._id.toString();
   }
 
-  async deleteOtherSessions(iat: Date, userId: string): Promise<void> {
+  async deleteOtherSessions(iat: number, userId: string): Promise<void> {
     const result = await this.SessionModel.deleteMany({
       userId,
       iat: { $ne: iat },
@@ -46,7 +46,7 @@ export class DevicesSecurityRepository {
 
   async findSessionOrFail(
     deviceId: string,
-    iat: Date,
+    iat: number,
   ): Promise<SessionDocument> {
     const session = await this.SessionModel.findOne({
       _id: deviceId,

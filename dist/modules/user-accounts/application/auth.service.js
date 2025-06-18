@@ -19,6 +19,7 @@ const _domainexceptioncodes = require("../../../core/exceptions/domain-exception
 const _mongoose = /*#__PURE__*/ _interop_require_default(require("mongoose"));
 const _devicessecurityservice = require("./devices-security.service");
 const _authtokeninjectconstants = require("../constants/auth-token.inject-constants");
+const _luxon = require("luxon");
 function _interop_require_default(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
@@ -57,7 +58,7 @@ let AuthService = class AuthService {
         const rtInput = {
             userId: user._id.toString(),
             deviceId: new _mongoose.default.Types.ObjectId().toString(),
-            iat: new Date().getTime()
+            iat: _luxon.DateTime.utc().toSeconds()
         };
         const accTInput = {
             id: user._id.toString()
@@ -67,7 +68,7 @@ let AuthService = class AuthService {
         const sessionInput = {
             deviceId: rtInput.deviceId,
             userId: rtInput.userId,
-            iat: new Date(rtInput.iat),
+            iat: rtInput.iat,
             ip: credentials.ip,
             title: credentials.title
         };
@@ -88,12 +89,11 @@ let AuthService = class AuthService {
         }
         const emailConfirmation = await this.usersService.createEmailConfirmation(user.email);
         const email = this.templateFactory.generateRegistrationEmail(emailConfirmation.confirmationCode);
-        await this.mailerService.sendMail({
+        this.mailerService.sendMail({
             to: user.email,
             subject: 'Bloggers platform registration',
             html: email
-        });
-        // .catch((err) => console.error(`error sending email: ${err}`));
+        }).catch((err)=>console.error(`error sending email: ${err}`));
         return {
             userId
         };
@@ -106,12 +106,11 @@ let AuthService = class AuthService {
     async resendConfirmation(email) {
         const newConfirmation = await this.usersService.createEmailConfirmation(email);
         const emailTemplate = this.templateFactory.generateRegistrationEmail(newConfirmation.confirmationCode);
-        await this.mailerService.sendMail({
+        this.mailerService.sendMail({
             to: email,
             subject: 'Bloggers platform registration',
             html: emailTemplate
-        });
-        // .catch((err) => console.error(`error sending email: ${err}`));
+        }).catch((err)=>console.error(`error sending email: ${err}`));
         return;
     }
     async reissueTokensPair(token) {
@@ -120,7 +119,7 @@ let AuthService = class AuthService {
         const rtInput = {
             userId: payload.userId,
             deviceId: new _mongoose.default.Types.ObjectId().toString(),
-            iat: new Date().getTime()
+            iat: _luxon.DateTime.utc().toSeconds()
         };
         const refreshToken = this.jwtRefreshTokService.sign(rtInput);
         const accessToken = this.jwtAccesTokService.sign({
@@ -138,12 +137,11 @@ let AuthService = class AuthService {
             return;
         }
         const emailTemplate = this.templateFactory.generatePassRecoveryEmail(recoveryObj.confirmationCode);
-        await this.mailerService.sendMail({
+        this.mailerService.sendMail({
             to: email,
             subject: 'Blogs service password recovery request',
             html: emailTemplate
-        });
-        // .catch((err) => console.error(`Error sending email: ${err}`));
+        }).catch((err)=>console.error(`Error sending email: ${err}`));
         return;
     }
     async confirmPassword(input) {

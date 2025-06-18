@@ -20,6 +20,7 @@ import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from '../constants/auth-token.inject-constants';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class AuthService {
@@ -58,7 +59,7 @@ export class AuthService {
     const rtInput: CreateRefreshTokenDto = {
       userId: user._id.toString(),
       deviceId: new mongoose.Types.ObjectId().toString(),
-      iat: new Date().getTime(),
+      iat: DateTime.utc().toSeconds(),
     };
     const accTInput: CreateAccessTokenDto = {
       id: user._id.toString(),
@@ -69,7 +70,7 @@ export class AuthService {
     const sessionInput: CreateSessionDto = {
       deviceId: rtInput.deviceId,
       userId: rtInput.userId,
-      iat: new Date(rtInput.iat),
+      iat: rtInput.iat,
       ip: credentials.ip,
       title: credentials.title,
     };
@@ -98,12 +99,13 @@ export class AuthService {
       emailConfirmation.confirmationCode,
     );
 
-    await this.mailerService.sendMail({
-      to: user.email,
-      subject: 'Bloggers platform registration',
-      html: email,
-    });
-    // .catch((err) => console.error(`error sending email: ${err}`));
+    this.mailerService
+      .sendMail({
+        to: user.email,
+        subject: 'Bloggers platform registration',
+        html: email,
+      })
+      .catch((err) => console.error(`error sending email: ${err}`));
 
     return { userId };
   }
@@ -120,12 +122,13 @@ export class AuthService {
     const emailTemplate = this.templateFactory.generateRegistrationEmail(
       newConfirmation.confirmationCode,
     );
-    await this.mailerService.sendMail({
-      to: email,
-      subject: 'Bloggers platform registration',
-      html: emailTemplate,
-    });
-    // .catch((err) => console.error(`error sending email: ${err}`));
+    this.mailerService
+      .sendMail({
+        to: email,
+        subject: 'Bloggers platform registration',
+        html: emailTemplate,
+      })
+      .catch((err) => console.error(`error sending email: ${err}`));
     return;
   }
 
@@ -138,7 +141,7 @@ export class AuthService {
     const rtInput: CreateRefreshTokenDto = {
       userId: payload.userId,
       deviceId: new mongoose.Types.ObjectId().toString(),
-      iat: new Date().getTime(),
+      iat: DateTime.utc().toSeconds(),
     };
     const refreshToken = this.jwtRefreshTokService.sign(rtInput);
     const accessToken = this.jwtAccesTokService.sign({ id: payload.userId });
@@ -155,12 +158,13 @@ export class AuthService {
       recoveryObj.confirmationCode,
     );
 
-    await this.mailerService.sendMail({
-      to: email,
-      subject: 'Blogs service password recovery request',
-      html: emailTemplate,
-    });
-    // .catch((err) => console.error(`Error sending email: ${err}`));
+    this.mailerService
+      .sendMail({
+        to: email,
+        subject: 'Blogs service password recovery request',
+        html: emailTemplate,
+      })
+      .catch((err) => console.error(`Error sending email: ${err}`));
     return;
   }
 

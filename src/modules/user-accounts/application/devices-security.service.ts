@@ -35,7 +35,7 @@ export class SessionsService {
       expiration: DateTime.utc()
         .plus(
           Duration.fromMillis(
-            this.configService.get('refreshTokenDuration') * 60 * 1000,
+            this.configService.get('refreshTokenDuration') * 1000,
           ),
         )
         .toJSDate(),
@@ -47,10 +47,9 @@ export class SessionsService {
   }
 
   async getSession(deviceId: string, iat: number): Promise<SessionDocument> {
-    const timestamp = new Date(iat);
     const session = await this.sessionsRepository.findSessionOrFail(
       deviceId,
-      timestamp,
+      iat,
     );
     return session;
   }
@@ -64,8 +63,7 @@ export class SessionsService {
         message: 'Unable to find a session for refresh',
       });
     }
-    const iat = new Date(newIat);
-    session.iat = iat;
+    session.iat = newIat;
     await this.sessionsRepository.save(session);
     return;
   }
@@ -74,10 +72,9 @@ export class SessionsService {
     const payload =
       this.jwtRefreshTokService.verify<CreateRefreshTokenDto>(token);
     //NOTE: check that refresh token session is active
-    const lastActiveDate = new Date(payload.iat);
     const session = await this.sessionsRepository.findSessionOrFail(
       payload.deviceId,
-      lastActiveDate,
+      payload.iat,
     );
     return this.sessionsRepository.deleteSession(session);
   }
@@ -91,10 +88,9 @@ export class SessionsService {
     const deviceId = payload.deviceId;
 
     //NOTE: check that refresh token session is active
-    const lastActiveDate = new Date(payload.iat);
     const session = await this.sessionsRepository.findSessionOrFail(
       deviceId,
-      lastActiveDate,
+      payload.iat,
     );
     //NOTE: check that userId is the same in token and in the deviceToDelete
     const targetSession =
@@ -118,9 +114,11 @@ export class SessionsService {
     const payload =
       this.jwtRefreshTokService.decode<CreateRefreshTokenDto>(token);
     const deviceId = payload.deviceId;
-    const iat = new Date(payload.iat);
 
-    await this.sessionsRepository.findSessionOrFail(deviceId, iat);
-    return this.sessionsRepository.deleteOtherSessions(iat, payload.userId);
+    await this.sessionsRepository.findSessionOrFail(deviceId, payload.iat);
+    return this.sessionsRepository.deleteOtherSessions(
+      payload.iat,
+      payload.userId,
+    );
   }
 }

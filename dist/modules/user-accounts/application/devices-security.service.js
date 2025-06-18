@@ -43,7 +43,7 @@ let SessionsService = class SessionsService {
         const domainInput = {
             ...input,
             deviceId: new _mongoose1.default.Types.ObjectId(input.deviceId),
-            expiration: _luxon.DateTime.utc().plus(_luxon.Duration.fromMillis(this.configService.get('refreshTokenDuration') * 60 * 1000)).toJSDate()
+            expiration: _luxon.DateTime.utc().plus(_luxon.Duration.fromMillis(this.configService.get('refreshTokenDuration') * 1000)).toJSDate()
         };
         const session = this.SessionModel.createSession(domainInput);
         const deviceId = await this.sessionsRepository.save(session);
@@ -52,8 +52,7 @@ let SessionsService = class SessionsService {
         };
     }
     async getSession(deviceId, iat) {
-        const timestamp = new Date(iat);
-        const session = await this.sessionsRepository.findSessionOrFail(deviceId, timestamp);
+        const session = await this.sessionsRepository.findSessionOrFail(deviceId, iat);
         return session;
     }
     async refreshSession(deviceId, newIat) {
@@ -64,24 +63,21 @@ let SessionsService = class SessionsService {
                 message: 'Unable to find a session for refresh'
             });
         }
-        const iat = new Date(newIat);
-        session.iat = iat;
+        session.iat = newIat;
         await this.sessionsRepository.save(session);
         return;
     }
     async logout(token) {
         const payload = this.jwtRefreshTokService.verify(token);
         //NOTE: check that refresh token session is active
-        const lastActiveDate = new Date(payload.iat);
-        const session = await this.sessionsRepository.findSessionOrFail(payload.deviceId, lastActiveDate);
+        const session = await this.sessionsRepository.findSessionOrFail(payload.deviceId, payload.iat);
         return this.sessionsRepository.deleteSession(session);
     }
     async deleteAnotherSession(token, deviceToDelete) {
         const payload = this.jwtRefreshTokService.decode(token);
         const deviceId = payload.deviceId;
         //NOTE: check that refresh token session is active
-        const lastActiveDate = new Date(payload.iat);
-        const session = await this.sessionsRepository.findSessionOrFail(deviceId, lastActiveDate);
+        const session = await this.sessionsRepository.findSessionOrFail(deviceId, payload.iat);
         //NOTE: check that userId is the same in token and in the deviceToDelete
         const targetSession = await this.sessionsRepository.findSessionByDeviceId(deviceToDelete);
         if (!targetSession) {
@@ -101,9 +97,8 @@ let SessionsService = class SessionsService {
     async deleteOtherSessions(token) {
         const payload = this.jwtRefreshTokService.decode(token);
         const deviceId = payload.deviceId;
-        const iat = new Date(payload.iat);
-        await this.sessionsRepository.findSessionOrFail(deviceId, iat);
-        return this.sessionsRepository.deleteOtherSessions(iat, payload.userId);
+        await this.sessionsRepository.findSessionOrFail(deviceId, payload.iat);
+        return this.sessionsRepository.deleteOtherSessions(payload.iat, payload.userId);
     }
     constructor(SessionModel, sessionsRepository, jwtRefreshTokService, configService){
         this.SessionModel = SessionModel;

@@ -37,7 +37,7 @@ let DeviceAuthSession = class DeviceAuthSession {
         const session = new this();
         session._id = dto.deviceId;
         session.userId = dto.userId;
-        session.iat = new Date(dto.iat);
+        session.iat = dto.iat;
         session.ip = dto.ip;
         session.title = dto.title;
         session.expiration = dto.expiration;
@@ -60,10 +60,10 @@ _ts_decorate([
 ], DeviceAuthSession.prototype, "userId", void 0);
 _ts_decorate([
     (0, _mongoose.Prop)({
-        type: Date,
+        type: Number,
         required: true
     }),
-    _ts_metadata("design:type", typeof Date === "undefined" ? Object : Date)
+    _ts_metadata("design:type", Number)
 ], DeviceAuthSession.prototype, "iat", void 0);
 _ts_decorate([
     (0, _mongoose.Prop)({
