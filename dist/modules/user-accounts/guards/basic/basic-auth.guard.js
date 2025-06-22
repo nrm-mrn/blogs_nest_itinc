@@ -9,11 +9,11 @@ Object.defineProperty(exports, "BasicAuthGuard", {
     }
 });
 const _common = require("@nestjs/common");
-const _config = require("@nestjs/config");
 const _core = require("@nestjs/core");
 const _publicdecorator = require("../decorators/public.decorator");
 const _domainexceptions = require("../../../../core/exceptions/domain-exceptions");
 const _domainexceptioncodes = require("../../../../core/exceptions/domain-exception-codes");
+const _useraccountconfig = require("../../config/user-account.config");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -40,8 +40,8 @@ let BasicAuthGuard = class BasicAuthGuard {
                 message: 'unauthorized'
             });
         }
-        const adminUsername = this.configService.get('adminUsername');
-        const adminPassword = this.configService.get('adminPassword');
+        const adminUsername = this.configService.adminUsername;
+        const adminPassword = this.configService.adminPassword;
         const base64Creds = authHeader.split(' ')[1];
         const credentials = Buffer.from(base64Creds, 'base64').toString('utf-8');
         const [username, password] = credentials.split(':');
@@ -63,7 +63,7 @@ BasicAuthGuard = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _config.ConfigService === "undefined" ? Object : _config.ConfigService,
+        typeof _useraccountconfig.UserAccountConfig === "undefined" ? Object : _useraccountconfig.UserAccountConfig,
         typeof _core.Reflector === "undefined" ? Object : _core.Reflector
     ])
 ], BasicAuthGuard);

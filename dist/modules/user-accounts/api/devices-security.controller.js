@@ -9,13 +9,13 @@ Object.defineProperty(exports, "DevicesSecurityController", {
     }
 });
 const _common = require("@nestjs/common");
-const _devicessecurityservice = require("../application/devices-security.service");
-const _jwt = require("@nestjs/jwt");
-const _devicessecurityqueryrepository = require("../infrastructure/query/devices-security.query-repository");
 const _jwtrefreshtokenguard = require("../guards/bearer/jwt-refresh-token-guard");
 const _express = require("express");
 const _objectidvalidationpipeservice = require("../../../core/pipes/object-id-validation-pipe.service");
-const _authtokeninjectconstants = require("../constants/auth-token.inject-constants");
+const _cqrs = require("@nestjs/cqrs");
+const _logoutanothersessionusecase = require("../application/usecases/logout-another-session.usecase");
+const _logoutallothersessionsusecase = require("../application/usecases/logout-all-other-sessions.usecase");
+const _getallusersessionsquery = require("../application/queries/get-all-user-sessions.query");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -33,20 +33,18 @@ function _ts_param(paramIndex, decorator) {
 let DevicesSecurityController = class DevicesSecurityController {
     async getDevices(req) {
         const token = req.cookies.refreshToken;
-        const payload = this.jwtRefreshTokService.decode(token);
-        return this.sessionsQueryRepo.getSessionsOrFail(payload.userId);
+        return this.queryBus.execute(new _getallusersessionsquery.GetUserSessionsQuery(token));
     }
     async deleteAnotherSession(req, deviceId) {
         const token = req.cookies.refreshToken;
-        await this.sessionsService.deleteAnotherSession(token, deviceId);
+        await this.commandBus.execute(new _logoutanothersessionusecase.LogoutAnotherSessionCommand(token, deviceId));
     }
     async deleteOtherSessions(req) {
-        return this.sessionsService.deleteOtherSessions(req.cookies.refreshToken);
+        return this.commandBus.execute(new _logoutallothersessionsusecase.LogoutOtherSessionsCommand(req.cookies.refreshToken));
     }
-    constructor(sessionsService, jwtRefreshTokService, sessionsQueryRepo){
-        this.sessionsService = sessionsService;
-        this.jwtRefreshTokService = jwtRefreshTokService;
-        this.sessionsQueryRepo = sessionsQueryRepo;
+    constructor(commandBus, queryBus){
+        this.commandBus = commandBus;
+        this.queryBus = queryBus;
     }
 };
 _ts_decorate([
@@ -84,12 +82,10 @@ _ts_decorate([
 DevicesSecurityController = _ts_decorate([
     (0, _common.UseGuards)(_jwtrefreshtokenguard.RefreshTokenGuard),
     (0, _common.Controller)('security'),
-    _ts_param(1, (0, _common.Inject)(_authtokeninjectconstants.REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _devicessecurityservice.SessionsService === "undefined" ? Object : _devicessecurityservice.SessionsService,
-        typeof _jwt.JwtService === "undefined" ? Object : _jwt.JwtService,
-        typeof _devicessecurityqueryrepository.SessionsQueryRepository === "undefined" ? Object : _devicessecurityqueryrepository.SessionsQueryRepository
+        typeof _cqrs.CommandBus === "undefined" ? Object : _cqrs.CommandBus,
+        typeof _cqrs.QueryBus === "undefined" ? Object : _cqrs.QueryBus
     ])
 ], DevicesSecurityController);
 

@@ -1,22 +1,23 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EmailService } from './email.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ConfigurationType } from '../config/config.module';
+import { NotificationsConfig } from './notifications.config';
+import { CoreConfig } from 'src/core/core.config';
+import { NotificationsConfigModule } from './notificationsConfig.module';
 
 @Module({
   imports: [
     MailerModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService<ConfigurationType>) => {
+      imports: [NotificationsConfigModule],
+      useFactory: (configService: NotificationsConfig) => {
         return {
-          transport: `smtps://${configService.get('mailerLogin')}:${configService.get('mailerPass')}@${configService.get('mailerHost')}`,
+          transport: `smtps://${configService.mailerLogin}:${configService.mailerPass}@${configService.mailerHost}`,
           defaults: {
-            from: `"bloggers platform" <${configService.get('mailerLogin')}>`,
+            from: `"bloggers platform" <${configService.mailerLogin}>`,
           },
         };
       },
-      inject: [ConfigService],
+      inject: [CoreConfig],
     }),
   ],
   providers: [EmailService],

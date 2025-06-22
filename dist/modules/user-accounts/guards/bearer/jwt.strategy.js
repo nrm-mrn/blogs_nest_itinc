@@ -11,7 +11,7 @@ Object.defineProperty(exports, "JwtStrategy", {
 const _passportjwt = require("passport-jwt");
 const _passport = require("@nestjs/passport");
 const _common = require("@nestjs/common");
-const _config = require("@nestjs/config");
+const _useraccountconfig = require("../../config/user-account.config");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -34,7 +34,7 @@ let JwtStrategy = class JwtStrategy extends (0, _passport.PassportStrategy)(_pas
         super({
             jwtFromRequest: _passportjwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: configService.get('jwtAccessSecret')
+            secretOrKey: configService.jwtAccessSecret
         });
     }
 };
@@ -42,7 +42,7 @@ JwtStrategy = _ts_decorate([
     (0, _common.Injectable)(),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _config.ConfigService === "undefined" ? Object : _config.ConfigService
+        typeof _useraccountconfig.UserAccountConfig === "undefined" ? Object : _useraccountconfig.UserAccountConfig
     ])
 ], JwtStrategy);
 

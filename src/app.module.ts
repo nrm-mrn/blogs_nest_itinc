@@ -1,8 +1,7 @@
-import { Module } from '@nestjs/common';
-import { ConditionalModule, ConfigModule, ConfigService } from '@nestjs/config';
+import { configModule } from './config-dynamic-module';
+import { DynamicModule, Module } from '@nestjs/common';
+import { ConditionalModule, ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import configuration from 'src/modules/config/config.module';
-import { ConfigurationType } from 'src/modules/config/config.module';
 import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionFilter } from './core/exceptions/filters/all-exceptions.filter';
@@ -14,45 +13,36 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerExceptionFilter } from './core/exceptions/filters/throttler-exceptions.filter';
 import { ApiRequestsStorage } from './modules/user-accounts/infrastructure/apiRequests.repository';
+import { CoreConfig } from './core/core.config';
+import { CoreModule } from './core/core.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      load: [configuration],
-      isGlobal: true,
-    }),
+    configModule,
+    CoreModule,
     MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService<ConfigurationType>) => ({
-        uri: configService.get('dbURL'),
-        dbName: configService.get('dbName'),
+      useFactory: (configService: CoreConfig) => ({
+        uri: configService.mongoURI,
+        dbName: configService.dbName,
       }),
-      inject: [ConfigService],
+      inject: [CoreConfig],
     }),
     ThrottlerModule.forRootAsync({
       imports: [UserAccountsModule],
-      useFactory: (
-        configService: ConfigService<ConfigurationType>,
-        storage: ApiRequestsStorage,
-      ) => ({
+      useFactory: (configService: CoreConfig, storage: ApiRequestsStorage) => ({
         throttlers: [
           {
-            ttl: configService.get<number>('requestsTtl')!,
-            limit: configService.get<number>('requestsLimit')!,
+            ttl: configService.requestsTTL,
+            limit: configService.requestsLimit,
           },
         ],
         storage,
       }),
-      inject: [ConfigService, ApiRequestsStorage],
+      inject: [CoreConfig, ApiRequestsStorage],
     }),
-    CqrsModule.forRoot({}),
     BloggersPlatformModule,
     UserAccountsModule,
     NotificationsModule,
-    ConditionalModule.registerWhen(
-      TestingApiModule,
-      (env: NodeJS.ProcessEnv) => env.NODE_ENV !== 'production',
-    ),
   ],
   controllers: [],
   providers: [
@@ -70,4 +60,11 @@ import { ApiRequestsStorage } from './modules/user-accounts/infrastructure/apiRe
     },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  static async forRoot(coreConfig: CoreConfig): Promise<DynamicModule> {
+    return {
+      module: AppModule,
+      imports: [...(coreConfig.includeTestingModule ? [TestingApiModule] : [])],
+    };
+  }
+}

@@ -9,14 +9,10 @@ Object.defineProperty(exports, "AuthController", {
     }
 });
 const _common = require("@nestjs/common");
-const _authservice = require("../application/auth.service");
-const _devicessecurityservice = require("../application/devices-security.service");
 const _userlogindto = require("./input-dto/user-login-dto");
 const _express = require("express");
-const _config = require("@nestjs/config");
 const _extractuserfromrequestdecorator = require("../guards/decorators/extract-user-from-request.decorator");
 const _usercontextdto = require("../guards/dto/user-context.dto");
-const _usersqueryrepository = require("../infrastructure/query/users.query-repository");
 const _registeruserinputdto = require("./input-dto/register-user.input-dto");
 const _resendemailinputdto = require("./input-dto/resend-email.input-dto");
 const _emailconfirminputdto = require("./input-dto/email-confirm.input-dto");
@@ -25,6 +21,17 @@ const _passconfirminputdto = require("./input-dto/pass-confirm.input-dto");
 const _jwtauthguard = require("../guards/bearer/jwt-auth.guard");
 const _jwtrefreshtokenguard = require("../guards/bearer/jwt-refresh-token-guard");
 const _throttler = require("@nestjs/throttler");
+const _cqrs = require("@nestjs/cqrs");
+const _getuserinfoquery = require("../application/queries/get-user-info.query");
+const _registeruserusecase = require("../application/usecases/register-user.usecase");
+const _resendemailconfirmationusecase = require("../application/usecases/resend-email-confirmation.usecase");
+const _loginuserusecase = require("../application/usecases/login-user.usecase");
+const _confirmuseremailusecase = require("../application/usecases/confirm-user-email.usecase");
+const _reissuetokensusecase = require("../application/usecases/reissue-tokens.usecase");
+const _recoverpasswordusecase = require("../application/usecases/recover-password.usecase");
+const _confirmnewpasswordusecase = require("../application/usecases/confirm-new-password.usecase");
+const _logoutuserusecase = require("../application/usecases/logout-user.usecase");
+const _useraccountconfig = require("../config/user-account.config");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -50,56 +57,51 @@ let AuthController = class AuthController {
             ip: ip ? ip : '',
             title: userAgent
         };
-        const { accessToken, refreshToken } = await this.authService.checkCredentials(creds);
+        const { accessToken, refreshToken } = await this.commandBus.execute(new _loginuserusecase.LoginUserCommand(creds.loginOrEmail, creds.password, creds.ip, creds.title));
         response.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: this.configService.get('nodeEnv') === 'development' ? false : true
+            secure: this.configService.secureCookie
         }).send({
             accessToken
         });
     }
     async reissueTokens(req, res) {
         const token = req.cookies.refreshToken;
-        const { refreshToken, accessToken } = await this.authService.reissueTokensPair(token);
+        const { refreshToken, accessToken } = await this.commandBus.execute(new _reissuetokensusecase.ReissueTokensCommand(token));
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: this.configService.get('nodeEnv') === 'development' ? false : true
+            secure: this.configService.secureCookie
         }).send({
             accessToken
         });
     }
     async logout(req, res) {
         const token = req.cookies.refreshToken;
-        await this.sessionsService.logout(token);
+        await this.commandBus.execute(new _logoutuserusecase.LogoutCommand(token));
         res.clearCookie('refreshToken').send();
     }
     async getUserInfo(user) {
-        return this.usersQueryRepo.getUserInfoOrFail(user.userId);
+        return this.queryBus.execute(new _getuserinfoquery.GetUserInfoQuery(user.userId));
     }
     async registerUser(body) {
-        return this.authService.registerUser(body);
+        return this.commandBus.execute(new _registeruserusecase.RegisterUserCommand(body.login, body.password, body.email));
     }
     async resendEmailConfirmation(dto) {
-        return this.authService.resendConfirmation(dto.email);
+        return this.commandBus.execute(new _resendemailconfirmationusecase.ResendEmailConfirmationCommand(dto.email));
     }
     async confirmEmail(dto) {
-        return this.authService.confirmEmail(dto.code);
+        return this.commandBus.execute(new _confirmuseremailusecase.ConfirmUserEmailCommand(dto.code));
     }
     async recoverPassword(dto) {
-        return this.authService.recoverPassword(dto.email);
+        return this.commandBus.execute(new _recoverpasswordusecase.RecoverPasswordCommand(dto.email));
     }
     async confirmPassword(dto) {
-        const confirmDto = {
-            code: dto.recoveryCode,
-            password: dto.newPassword
-        };
-        return this.authService.confirmPassword(confirmDto);
+        return this.commandBus.execute(new _confirmnewpasswordusecase.ConfirmPasswordCommand(dto.recoveryCode, dto.newPassword));
     }
-    constructor(authService, sessionsService, configService, usersQueryRepo){
-        this.authService = authService;
-        this.sessionsService = sessionsService;
+    constructor(configService, queryBus, commandBus){
         this.configService = configService;
-        this.usersQueryRepo = usersQueryRepo;
+        this.queryBus = queryBus;
+        this.commandBus = commandBus;
     }
 };
 _ts_decorate([
@@ -213,10 +215,9 @@ AuthController = _ts_decorate([
     (0, _common.Controller)('auth'),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _authservice.AuthService === "undefined" ? Object : _authservice.AuthService,
-        typeof _devicessecurityservice.SessionsService === "undefined" ? Object : _devicessecurityservice.SessionsService,
-        typeof _config.ConfigService === "undefined" ? Object : _config.ConfigService,
-        typeof _usersqueryrepository.UsersQueryRepository === "undefined" ? Object : _usersqueryrepository.UsersQueryRepository
+        typeof _useraccountconfig.UserAccountConfig === "undefined" ? Object : _useraccountconfig.UserAccountConfig,
+        typeof _cqrs.QueryBus === "undefined" ? Object : _cqrs.QueryBus,
+        typeof _cqrs.CommandBus === "undefined" ? Object : _cqrs.CommandBus
     ])
 ], AuthController);
 

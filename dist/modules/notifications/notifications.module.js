@@ -11,7 +11,8 @@ Object.defineProperty(exports, "NotificationsModule", {
 const _common = require("@nestjs/common");
 const _mailer = require("@nestjs-modules/mailer");
 const _emailservice = require("./email.service");
-const _config = require("@nestjs/config");
+const _coreconfig = require("../../core/core.config");
+const _notificationsConfigmodule = require("./notificationsConfig.module");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -25,18 +26,18 @@ NotificationsModule = _ts_decorate([
         imports: [
             _mailer.MailerModule.forRootAsync({
                 imports: [
-                    _config.ConfigModule
+                    _notificationsConfigmodule.NotificationsConfigModule
                 ],
                 useFactory: (configService)=>{
                     return {
-                        transport: `smtps://${configService.get('mailerLogin')}:${configService.get('mailerPass')}@${configService.get('mailerHost')}`,
+                        transport: `smtps://${configService.mailerLogin}:${configService.mailerPass}@${configService.mailerHost}`,
                         defaults: {
-                            from: `"bloggers platform" <${configService.get('mailerLogin')}>`
+                            from: `"bloggers platform" <${configService.mailerLogin}>`
                         }
                     };
                 },
                 inject: [
-                    _config.ConfigService
+                    _coreconfig.CoreConfig
                 ]
             })
         ],

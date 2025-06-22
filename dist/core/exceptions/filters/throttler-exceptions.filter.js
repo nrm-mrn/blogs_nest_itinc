@@ -9,8 +9,8 @@ Object.defineProperty(exports, "ThrottlerExceptionFilter", {
     }
 });
 const _common = require("@nestjs/common");
-const _config = require("@nestjs/config");
 const _throttler = require("@nestjs/throttler");
+const _coreconfig = require("../../core.config");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -31,17 +31,17 @@ let ThrottlerExceptionFilter = class ThrottlerExceptionFilter {
         res.status(code).json(resBody);
     }
     buildResponseBody(reqUrl, message) {
-        if (this.configService.get('nodeEnv') === 'production') {
-            return {
-                timestamp: new Date().toISOString(),
-                path: null,
-                message: 'Too many requests'
-            };
-        } else {
+        if (this.configService.verboseErrors) {
             return {
                 timestamp: new Date().toISOString(),
                 path: reqUrl,
                 message
+            };
+        } else {
+            return {
+                timestamp: new Date().toISOString(),
+                path: null,
+                message: 'Too many requests'
             };
         }
     }
@@ -53,7 +53,7 @@ ThrottlerExceptionFilter = _ts_decorate([
     (0, _common.Catch)(_throttler.ThrottlerException),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _config.ConfigService === "undefined" ? Object : _config.ConfigService
+        typeof _coreconfig.CoreConfig === "undefined" ? Object : _coreconfig.CoreConfig
     ])
 ], ThrottlerExceptionFilter);
 

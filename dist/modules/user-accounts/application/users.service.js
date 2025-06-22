@@ -15,7 +15,6 @@ const _mongoose = require("@nestjs/mongoose");
 const _userentity = require("../domain/user.entity");
 const _domainexceptions = require("../../../core/exceptions/domain-exceptions");
 const _domainexceptioncodes = require("../../../core/exceptions/domain-exception-codes");
-const _config = require("@nestjs/config");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -31,21 +30,6 @@ function _ts_param(paramIndex, decorator) {
     };
 }
 let UsersService = class UsersService {
-    async createUser(input) {
-        const newUser = await this.createUserDoc(input);
-        const userId = await this.usersRepository.save(newUser);
-        return {
-            userId
-        };
-    }
-    async createUserByAdmin(input) {
-        const newUser = await this.createUserDoc(input);
-        newUser.confirmEmailByAdmin();
-        const userId = await this.usersRepository.save(newUser);
-        return {
-            userId
-        };
-    }
     async createUserDoc(input) {
         const uniqueLogin = await this.isLoginUnique(input.login);
         if (!uniqueLogin) {
@@ -88,86 +72,10 @@ let UsersService = class UsersService {
         }
         return true;
     }
-    async findUserById(id) {
-        return this.usersRepository.findById(id);
-    }
-    async getUserByLoginOrEmail(input) {
-        const user = await this.usersRepository.findUserByLoginOrEmail(input);
-        return user;
-    }
-    async deleteUser(userId) {
-        const user = await this.usersRepository.findOrNotFoundFail(userId);
-        await this.usersRepository.deleteUser(user);
-    }
-    async createEmailConfirmation(email) {
-        const user = await this.usersRepository.findUserByEmail(email);
-        if (!user) {
-            throw new _domainexceptions.DomainException({
-                code: _domainexceptioncodes.DomainExceptionCode.BadRequest,
-                message: 'User with provided email do not exist',
-                extensions: [
-                    new _domainexceptions.Extension('User with provided email do not exist', 'email')
-                ]
-            });
-        }
-        if (user.emailConfirmation?.isConfirmed) {
-            throw new _domainexceptions.DomainException({
-                code: _domainexceptioncodes.DomainExceptionCode.BadRequest,
-                message: 'Email is already confirmed',
-                extensions: [
-                    new _domainexceptions.Extension('Email is already confirmed', 'email')
-                ]
-            });
-        }
-        user.genEmailConfirmation(this.configService.get('emailExpiration'));
-        await this.usersRepository.save(user);
-        return user.emailConfirmation;
-    }
-    async confirmEmail(code) {
-        const user = await this.usersRepository.findUserByEmailConfirmation(code);
-        if (!user) {
-            throw new _domainexceptions.DomainException({
-                code: _domainexceptioncodes.DomainExceptionCode.BadRequest,
-                message: 'User with provided code does not exist',
-                extensions: [
-                    new _domainexceptions.Extension('User with provided code does not exist', 'code')
-                ]
-            });
-        }
-        user.confirmEmail();
-        await this.usersRepository.save(user);
-        return;
-    }
-    async setPasswordRecovery(email) {
-        const user = await this.usersRepository.findUserByEmail(email);
-        if (!user) {
-            return null;
-        }
-        user.genPasswordRecovery(this.configService.get('passRecoveryExpiration'));
-        await this.usersRepository.save(user);
-        return user.passwordRecovery;
-    }
-    async confirmPassword(input) {
-        const user = await this.usersRepository.getUserByPassRecovery(input.code);
-        if (!user) {
-            throw new _domainexceptions.DomainException({
-                code: _domainexceptioncodes.DomainExceptionCode.BadRequest,
-                message: 'Incorrect recovery code',
-                extensions: [
-                    new _domainexceptions.Extension('incorrect recovery code', 'recoveryCode')
-                ]
-            });
-        }
-        const hash = await this.hashService.createHash(input.password);
-        user.confirmPassword(hash);
-        await this.usersRepository.save(user);
-        return;
-    }
-    constructor(UserModel, usersRepository, hashService, configService){
+    constructor(UserModel, usersRepository, hashService){
         this.UserModel = UserModel;
         this.usersRepository = usersRepository;
         this.hashService = hashService;
-        this.configService = configService;
     }
 };
 UsersService = _ts_decorate([
@@ -177,8 +85,7 @@ UsersService = _ts_decorate([
     _ts_metadata("design:paramtypes", [
         typeof _userentity.UserModelType === "undefined" ? Object : _userentity.UserModelType,
         typeof _usersrepository.UsersRepository === "undefined" ? Object : _usersrepository.UsersRepository,
-        typeof _passHashservice.HashService === "undefined" ? Object : _passHashservice.HashService,
-        typeof _config.ConfigService === "undefined" ? Object : _config.ConfigService
+        typeof _passHashservice.HashService === "undefined" ? Object : _passHashservice.HashService
     ])
 ], UsersService);
 

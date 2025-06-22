@@ -9,14 +9,6 @@ import {
   Extension,
 } from 'src/core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes';
-import { EmailConfirmation } from '../domain/emailConfirmation.schema';
-import { ConfigService } from '@nestjs/config';
-import { ConfigurationType } from 'src/modules/config/config.module';
-import { Duration } from 'luxon';
-import { UUID } from 'crypto';
-import { PasswordRecovery } from '../domain/passRecovery.schema';
-import { ConfirmPasswordDto } from '../dto/confirm-password.dto';
-import { EmailConfirmationViewModel } from '../dto/email-confirmation-view.dto';
 
 @Injectable()
 export class UsersService {
@@ -24,24 +16,9 @@ export class UsersService {
     @InjectModel(User.name) private readonly UserModel: UserModelType,
     private readonly usersRepository: UsersRepository,
     private readonly hashService: HashService,
-    private readonly configService: ConfigService<ConfigurationType>,
   ) {}
 
-  async createUser(input: CreateUserDto): Promise<{ userId: string }> {
-    const newUser = await this.createUserDoc(input);
-    const userId = await this.usersRepository.save(newUser);
-
-    return { userId };
-  }
-
-  async createUserByAdmin(input: CreateUserDto): Promise<{ userId: string }> {
-    const newUser = await this.createUserDoc(input);
-    newUser.confirmEmailByAdmin();
-    const userId = await this.usersRepository.save(newUser);
-    return { userId };
-  }
-
-  private async createUserDoc(input: CreateUserDto): Promise<UserDocument> {
+  async createUserDoc(input: CreateUserDto): Promise<UserDocument> {
     const uniqueLogin = await this.isLoginUnique(input.login);
     if (!uniqueLogin) {
       throw new DomainException({
@@ -81,89 +58,5 @@ export class UsersService {
       return false;
     }
     return true;
-  }
-
-  async findUserById(id: string): Promise<UserDocument | null> {
-    return this.usersRepository.findById(id);
-  }
-
-  async getUserByLoginOrEmail(input: string): Promise<UserDocument | null> {
-    const user = await this.usersRepository.findUserByLoginOrEmail(input);
-    return user;
-  }
-
-  async deleteUser(userId: string) {
-    const user = await this.usersRepository.findOrNotFoundFail(userId);
-    await this.usersRepository.deleteUser(user);
-  }
-
-  async createEmailConfirmation(
-    email: string,
-  ): Promise<EmailConfirmationViewModel> {
-    const user = await this.usersRepository.findUserByEmail(email);
-    if (!user) {
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: 'User with provided email do not exist',
-        extensions: [
-          new Extension('User with provided email do not exist', 'email'),
-        ],
-      });
-    }
-    if (user.emailConfirmation?.isConfirmed) {
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: 'Email is already confirmed',
-        extensions: [new Extension('Email is already confirmed', 'email')],
-      });
-    }
-    user.genEmailConfirmation(
-      this.configService.get('emailExpiration') as Duration,
-    );
-    await this.usersRepository.save(user);
-    return user.emailConfirmation as EmailConfirmationViewModel;
-  }
-
-  async confirmEmail(code: UUID): Promise<void> {
-    const user = await this.usersRepository.findUserByEmailConfirmation(code);
-    if (!user) {
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: 'User with provided code does not exist',
-        extensions: [
-          new Extension('User with provided code does not exist', 'code'),
-        ],
-      });
-    }
-    user.confirmEmail();
-    await this.usersRepository.save(user);
-    return;
-  }
-
-  async setPasswordRecovery(email: string): Promise<PasswordRecovery | null> {
-    const user = await this.usersRepository.findUserByEmail(email);
-    if (!user) {
-      return null;
-    }
-    user.genPasswordRecovery(
-      this.configService.get('passRecoveryExpiration') as Duration,
-    );
-    await this.usersRepository.save(user);
-    return user.passwordRecovery as PasswordRecovery;
-  }
-
-  async confirmPassword(input: ConfirmPasswordDto): Promise<void> {
-    const user = await this.usersRepository.getUserByPassRecovery(input.code);
-    if (!user) {
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: 'Incorrect recovery code',
-        extensions: [new Extension('incorrect recovery code', 'recoveryCode')],
-      });
-    }
-    const hash = await this.hashService.createHash(input.password);
-    user.confirmPassword(hash);
-    await this.usersRepository.save(user);
-    return;
   }
 }

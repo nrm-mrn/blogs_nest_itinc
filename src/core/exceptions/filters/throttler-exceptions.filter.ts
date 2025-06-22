@@ -4,16 +4,13 @@ import {
   ExceptionFilter,
   HttpStatus,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
-import { ConfigurationType } from 'src/modules/config/config.module';
 import { ThrottlerException } from '@nestjs/throttler';
+import { CoreConfig } from 'src/core/core.config';
 
 @Catch(ThrottlerException)
 export class ThrottlerExceptionFilter implements ExceptionFilter {
-  constructor(
-    private readonly configService: ConfigService<ConfigurationType>,
-  ) {}
+  constructor(private readonly configService: CoreConfig) {}
   catch(exception: ThrottlerException, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
@@ -26,17 +23,17 @@ export class ThrottlerExceptionFilter implements ExceptionFilter {
   }
 
   private buildResponseBody(reqUrl: string, message: string) {
-    if (this.configService.get('nodeEnv') === 'production') {
-      return {
-        timestamp: new Date().toISOString(),
-        path: null,
-        message: 'Too many requests',
-      };
-    } else {
+    if (this.configService.verboseErrors) {
       return {
         timestamp: new Date().toISOString(),
         path: reqUrl,
         message,
+      };
+    } else {
+      return {
+        timestamp: new Date().toISOString(),
+        path: null,
+        message: 'Too many requests',
       };
     }
   }

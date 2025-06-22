@@ -10,24 +10,25 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from '../application/users.service';
-import { UsersQueryRepository } from '../infrastructure/query/users.query-repository';
 import { GetUsersQueryParams } from './input-dto/get-users-query-params.input-dto';
 import { PaginatedViewDto } from 'src/core/dto/base.paginated.view-dto';
 import { UserViewDto } from './view-dto/users.view-dto';
 import { BasicAuthGuard } from '../guards/basic/basic-auth.guard';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { DomainException } from 'src/core/exceptions/domain-exceptions';
-import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes';
 import { ObjectIdValidationPipe } from 'src/core/pipes/object-id-validation-pipe.service';
 import { CreateUserInputDto } from './input-dto/create-user.input-dto';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CreateUserByAdminCommand } from '../application/usecases/create-user.usecase';
+import { GetUserQuery } from '../application/queries/get-user.query';
+import { GetAllUsersQuery } from '../application/queries/get-all-users.query';
+import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
 
 @Controller('users')
 @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
-    private readonly usersService: UsersService,
-    private readonly usersQueryRepo: UsersQueryRepository,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Get()
@@ -35,7 +36,7 @@ export class UsersController {
   async getAllUsers(
     @Query() query: GetUsersQueryParams,
   ): Promise<PaginatedViewDto<UserViewDto[]>> {
-    return this.usersQueryRepo.getAllUsers(query);
+    return this.queryBus.execute(new GetAllUsersQuery(query));
   }
 
   @Post()
@@ -46,20 +47,16 @@ export class UsersController {
       email: body.email,
       password: body.password,
     };
-    const { userId } = await this.usersService.createUserByAdmin(input);
-    const user = await this.usersQueryRepo.getUserById(userId);
-    if (!user) {
-      throw new DomainException({
-        code: DomainExceptionCode.InternalServerError,
-        message: 'User not found after creation',
-      });
-    }
+    const { userId } = await this.commandBus.execute(
+      new CreateUserByAdminCommand(input.login, input.password, input.email),
+    );
+    const user = await this.queryBus.execute(new GetUserQuery(userId));
     return user;
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(@Param('id', ObjectIdValidationPipe) id: string) {
-    return this.usersService.deleteUser(id);
+    return this.commandBus.execute(new DeleteUserCommand(id));
   }
 }

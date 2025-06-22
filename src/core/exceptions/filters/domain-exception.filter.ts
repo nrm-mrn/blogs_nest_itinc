@@ -12,14 +12,11 @@ import {
   APIErrorResultExt,
   FieldError,
 } from '../api-error.result';
-import { ConfigService } from '@nestjs/config';
-import { ConfigurationType } from 'src/modules/config/config.module';
+import { CoreConfig } from 'src/core/core.config';
 
 @Catch(DomainException)
 export class DomainHttpExceptionFilter implements ExceptionFilter {
-  constructor(
-    private readonly configService: ConfigService<ConfigurationType>,
-  ) {}
+  constructor(private readonly configService: CoreConfig) {}
   catch(exception: DomainException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -61,7 +58,7 @@ export class DomainHttpExceptionFilter implements ExceptionFilter {
       res.push(new FieldError(ext.message, ext.key));
     });
 
-    if (this.configService.get('nodeEnv') === 'development') {
+    if (this.configService.verboseErrors) {
       return {
         errorsMessages: res,
         message: exception.message,

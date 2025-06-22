@@ -12,7 +12,7 @@ const _common = require("@nestjs/common");
 const _domainexceptions = require("../domain-exceptions");
 const _domainexceptioncodes = require("../domain-exception-codes");
 const _apierrorresult = require("../api-error.result");
-const _config = require("@nestjs/config");
+const _coreconfig = require("../../core.config");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -58,7 +58,7 @@ let DomainHttpExceptionFilter = class DomainHttpExceptionFilter {
         extensions.forEach((ext)=>{
             res.push(new _apierrorresult.FieldError(ext.message, ext.key));
         });
-        if (this.configService.get('nodeEnv') === 'development') {
+        if (this.configService.verboseErrors) {
             return {
                 errorsMessages: res,
                 message: exception.message
@@ -77,7 +77,7 @@ DomainHttpExceptionFilter = _ts_decorate([
     (0, _common.Catch)(_domainexceptions.DomainException),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _config.ConfigService === "undefined" ? Object : _config.ConfigService
+        typeof _coreconfig.CoreConfig === "undefined" ? Object : _coreconfig.CoreConfig
     ])
 ], DomainHttpExceptionFilter);
 

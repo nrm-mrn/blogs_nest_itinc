@@ -9,14 +9,15 @@ Object.defineProperty(exports, "UsersController", {
     }
 });
 const _common = require("@nestjs/common");
-const _usersservice = require("../application/users.service");
-const _usersqueryrepository = require("../infrastructure/query/users.query-repository");
 const _getusersqueryparamsinputdto = require("./input-dto/get-users-query-params.input-dto");
 const _basicauthguard = require("../guards/basic/basic-auth.guard");
-const _domainexceptions = require("../../../core/exceptions/domain-exceptions");
-const _domainexceptioncodes = require("../../../core/exceptions/domain-exception-codes");
 const _objectidvalidationpipeservice = require("../../../core/pipes/object-id-validation-pipe.service");
 const _createuserinputdto = require("./input-dto/create-user.input-dto");
+const _cqrs = require("@nestjs/cqrs");
+const _createuserusecase = require("../application/usecases/create-user.usecase");
+const _getuserquery = require("../application/queries/get-user.query");
+const _getallusersquery = require("../application/queries/get-all-users.query");
+const _deleteuserusecase = require("../application/usecases/delete-user.usecase");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -33,7 +34,7 @@ function _ts_param(paramIndex, decorator) {
 }
 let UsersController = class UsersController {
     async getAllUsers(query) {
-        return this.usersQueryRepo.getAllUsers(query);
+        return this.queryBus.execute(new _getallusersquery.GetAllUsersQuery(query));
     }
     async createUser(body) {
         const input = {
@@ -41,22 +42,16 @@ let UsersController = class UsersController {
             email: body.email,
             password: body.password
         };
-        const { userId } = await this.usersService.createUserByAdmin(input);
-        const user = await this.usersQueryRepo.getUserById(userId);
-        if (!user) {
-            throw new _domainexceptions.DomainException({
-                code: _domainexceptioncodes.DomainExceptionCode.InternalServerError,
-                message: 'User not found after creation'
-            });
-        }
+        const { userId } = await this.commandBus.execute(new _createuserusecase.CreateUserByAdminCommand(input.login, input.password, input.email));
+        const user = await this.queryBus.execute(new _getuserquery.GetUserQuery(userId));
         return user;
     }
     async deleteUser(id) {
-        return this.usersService.deleteUser(id);
+        return this.commandBus.execute(new _deleteuserusecase.DeleteUserCommand(id));
     }
-    constructor(usersService, usersQueryRepo){
-        this.usersService = usersService;
-        this.usersQueryRepo = usersQueryRepo;
+    constructor(commandBus, queryBus){
+        this.commandBus = commandBus;
+        this.queryBus = queryBus;
     }
 };
 _ts_decorate([
@@ -94,8 +89,8 @@ UsersController = _ts_decorate([
     (0, _common.UseGuards)(_basicauthguard.BasicAuthGuard),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _usersservice.UsersService === "undefined" ? Object : _usersservice.UsersService,
-        typeof _usersqueryrepository.UsersQueryRepository === "undefined" ? Object : _usersqueryrepository.UsersQueryRepository
+        typeof _cqrs.CommandBus === "undefined" ? Object : _cqrs.CommandBus,
+        typeof _cqrs.QueryBus === "undefined" ? Object : _cqrs.QueryBus
     ])
 ], UsersController);
 

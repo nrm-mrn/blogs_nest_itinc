@@ -9,8 +9,8 @@ Object.defineProperty(exports, "AllExceptionFilter", {
     }
 });
 const _common = require("@nestjs/common");
-const _config = require("@nestjs/config");
 const _domainexceptioncodes = require("../domain-exception-codes");
+const _coreconfig = require("../../core.config");
 function _ts_decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -31,19 +31,19 @@ let AllExceptionFilter = class AllExceptionFilter {
         res.status(code).json(resBody);
     }
     buildResponseBody(reqUrl, message) {
-        if (this.configService.get('nodeEnv') === 'production') {
+        if (this.configService.verboseErrors) {
             return {
                 timestamp: new Date().toISOString(),
-                path: null,
-                message: 'Server error occured',
+                path: reqUrl,
+                message,
                 extensions: [],
                 code: _domainexceptioncodes.DomainExceptionCode.InternalServerError
             };
         } else {
             return {
                 timestamp: new Date().toISOString(),
-                path: reqUrl,
-                message,
+                path: null,
+                message: 'Server error occured',
                 extensions: [],
                 code: _domainexceptioncodes.DomainExceptionCode.InternalServerError
             };
@@ -57,7 +57,7 @@ AllExceptionFilter = _ts_decorate([
     (0, _common.Catch)(),
     _ts_metadata("design:type", Function),
     _ts_metadata("design:paramtypes", [
-        typeof _config.ConfigService === "undefined" ? Object : _config.ConfigService
+        typeof _coreconfig.CoreConfig === "undefined" ? Object : _coreconfig.CoreConfig
     ])
 ], AllExceptionFilter);
 

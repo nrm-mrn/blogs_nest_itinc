@@ -4,16 +4,13 @@ import {
   ExceptionFilter,
   HttpStatus,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
-import { ConfigurationType } from 'src/modules/config/config.module';
 import { DomainExceptionCode } from '../domain-exception-codes';
+import { CoreConfig } from 'src/core/core.config';
 
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
-  constructor(
-    private readonly configService: ConfigService<ConfigurationType>,
-  ) {}
+  constructor(private readonly configService: CoreConfig) {}
   catch(exception: Error, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
@@ -26,19 +23,19 @@ export class AllExceptionFilter implements ExceptionFilter {
   }
 
   private buildResponseBody(reqUrl: string, message: string) {
-    if (this.configService.get('nodeEnv') === 'production') {
+    if (this.configService.verboseErrors) {
       return {
         timestamp: new Date().toISOString(),
-        path: null,
-        message: 'Server error occured',
+        path: reqUrl,
+        message,
         extensions: [],
         code: DomainExceptionCode.InternalServerError,
       };
     } else {
       return {
         timestamp: new Date().toISOString(),
-        path: reqUrl,
-        message,
+        path: null,
+        message: 'Server error occured',
         extensions: [],
         code: DomainExceptionCode.InternalServerError,
       };

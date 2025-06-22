@@ -11,35 +11,39 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from '../application/auth.service';
-import { SessionsService } from '../application/devices-security.service';
 import { UserLoginInputDto } from './input-dto/user-login-dto';
 import { LoginDto } from '../dto/login.dto';
 import { Request, Response } from 'express';
-import { ConfigService } from '@nestjs/config';
-import { ConfigurationType } from 'src/modules/config/config.module';
 import { MeViewDto } from './view-dto/users.view-dto';
 import { ExtractUserFromRequest } from '../guards/decorators/extract-user-from-request.decorator';
 import { UserContextDto } from '../guards/dto/user-context.dto';
-import { UsersQueryRepository } from '../infrastructure/query/users.query-repository';
 import { RegisterUserInputDto } from './input-dto/register-user.input-dto';
 import { ResendEmailConfirmationInputDto } from './input-dto/resend-email.input-dto';
 import { ConfirmEmailInputDto } from './input-dto/email-confirm.input-dto';
 import { PassRecoverInputDto } from './input-dto/pass-recover.input-dto';
-import { ConfirmPasswordDto } from '../dto/confirm-password.dto';
 import { ConfirmPasswordInputDto } from './input-dto/pass-confirm.input-dto';
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard';
 import { RefreshTokenGuard } from '../guards/bearer/jwt-refresh-token-guard';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { GetUserInfoQuery } from '../application/queries/get-user-info.query';
+import { RegisterUserCommand } from '../application/usecases/register-user.usecase';
+import { ResendEmailConfirmationCommand } from '../application/usecases/resend-email-confirmation.usecase';
+import { LoginUserCommand } from '../application/usecases/login-user.usecase';
+import { ConfirmUserEmailCommand } from '../application/usecases/confirm-user-email.usecase';
+import { ReissueTokensCommand } from '../application/usecases/reissue-tokens.usecase';
+import { RecoverPasswordCommand } from '../application/usecases/recover-password.usecase';
+import { ConfirmPasswordCommand } from '../application/usecases/confirm-new-password.usecase';
+import { LogoutCommand } from '../application/usecases/logout-user.usecase';
+import { UserAccountConfig } from '../config/user-account.config';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
-    private readonly sessionsService: SessionsService,
-    private readonly configService: ConfigService<ConfigurationType>,
-    private readonly usersQueryRepo: UsersQueryRepository,
+    private readonly configService: UserAccountConfig,
+    private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Post('login')
@@ -60,13 +64,18 @@ export class AuthController {
       ip: ip ? ip : '',
       title: userAgent,
     };
-    const { accessToken, refreshToken } =
-      await this.authService.checkCredentials(creds);
+    const { accessToken, refreshToken } = await this.commandBus.execute(
+      new LoginUserCommand(
+        creds.loginOrEmail,
+        creds.password,
+        creds.ip,
+        creds.title,
+      ),
+    );
     response
       .cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure:
-          this.configService.get('nodeEnv') === 'development' ? false : true,
+        secure: this.configService.secureCookie,
       })
       .send({ accessToken });
   }
@@ -77,13 +86,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async reissueTokens(@Req() req: Request, @Res() res: Response) {
     const token = req.cookies.refreshToken as string;
-    const { refreshToken, accessToken } =
-      await this.authService.reissueTokensPair(token);
+    const { refreshToken, accessToken } = await this.commandBus.execute(
+      new ReissueTokensCommand(token),
+    );
     res
       .cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure:
-          this.configService.get('nodeEnv') === 'development' ? false : true,
+        secure: this.configService.secureCookie,
       })
       .send({ accessToken });
   }
@@ -94,7 +103,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Req() req: Request, @Res() res: Response) {
     const token = req.cookies.refreshToken as string;
-    await this.sessionsService.logout(token);
+    await this.commandBus.execute(new LogoutCommand(token));
     res.clearCookie('refreshToken').send();
   }
 
@@ -105,40 +114,42 @@ export class AuthController {
   async getUserInfo(
     @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<MeViewDto> {
-    return this.usersQueryRepo.getUserInfoOrFail(user.userId);
+    return this.queryBus.execute(new GetUserInfoQuery(user.userId));
   }
 
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
   async registerUser(@Body() body: RegisterUserInputDto) {
-    return this.authService.registerUser(body);
+    return this.commandBus.execute(
+      new RegisterUserCommand(body.login, body.password, body.email),
+    );
   }
 
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
   async resendEmailConfirmation(@Body() dto: ResendEmailConfirmationInputDto) {
-    return this.authService.resendConfirmation(dto.email);
+    return this.commandBus.execute(
+      new ResendEmailConfirmationCommand(dto.email),
+    );
   }
 
   @Post('registration-confirmation')
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmEmail(@Body() dto: ConfirmEmailInputDto) {
-    return this.authService.confirmEmail(dto.code);
+    return this.commandBus.execute(new ConfirmUserEmailCommand(dto.code));
   }
 
   @Post('password-recovery')
   @HttpCode(HttpStatus.NO_CONTENT)
   async recoverPassword(@Body() dto: PassRecoverInputDto) {
-    return this.authService.recoverPassword(dto.email);
+    return this.commandBus.execute(new RecoverPasswordCommand(dto.email));
   }
 
   @Post('new-password')
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmPassword(@Body() dto: ConfirmPasswordInputDto) {
-    const confirmDto: ConfirmPasswordDto = {
-      code: dto.recoveryCode,
-      password: dto.newPassword,
-    };
-    return this.authService.confirmPassword(confirmDto);
+    return this.commandBus.execute(
+      new ConfirmPasswordCommand(dto.recoveryCode, dto.newPassword),
+    );
   }
 }

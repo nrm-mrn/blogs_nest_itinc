@@ -9,12 +9,19 @@ Object.defineProperty(exports, "swaggerSetup", {
     }
 });
 const _swagger = require("@nestjs/swagger");
+const _coreconfig = require("../core/core.config");
 function swaggerSetup(app) {
-    const config = new _swagger.DocumentBuilder().setTitle('BLOGGER API').addBearerAuth().setVersion('1.0').build();
-    const document = _swagger.SwaggerModule.createDocument(app, config);
-    _swagger.SwaggerModule.setup('api', app, document, {
-        customSiteTitle: 'Blogger Swagger'
-    });
+    const configService = app.get(_coreconfig.CoreConfig);
+    if (configService.isSwaggerEnabled) {
+        const config = new _swagger.DocumentBuilder().setTitle('BLOGGER API').addBearerAuth().setVersion('1.0').addBasicAuth({
+            type: 'http',
+            scheme: 'basic'
+        }, 'basicAuth').build();
+        const document = _swagger.SwaggerModule.createDocument(app, config);
+        _swagger.SwaggerModule.setup('api', app, document, {
+            customSiteTitle: 'Blogger Swagger'
+        });
+    }
 }
 
 //# sourceMappingURL=swagger.setup.js.map

@@ -3,16 +3,15 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 const _core = require("@nestjs/core");
-const _appmodule = require("./app.module");
 const _appsetup = require("./setup/app.setup");
-const _config = require("@nestjs/config");
+const _coreconfig = require("./core/core.config");
+const _initappmodule = require("./init-app-module");
 async function bootstrap() {
-    const app = await _core.NestFactory.create(_appmodule.AppModule);
+    const DynamicAppModule = await (0, _initappmodule.initAppModule)();
+    const app = await _core.NestFactory.create(DynamicAppModule);
+    const configService = app.get(_coreconfig.CoreConfig);
     (0, _appsetup.appSetup)(app);
-    const configService = app.get(_config.ConfigService);
-    const port = configService.get('port', {
-        infer: true
-    });
+    const port = configService.port;
     await app.listen(port);
 }
 void bootstrap();
