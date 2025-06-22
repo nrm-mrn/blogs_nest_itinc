@@ -16,6 +16,7 @@ _export(exports, {
         return ReissueTokensHandler;
     }
 });
+const _cqrs = require("@nestjs/cqrs");
 const _common = require("@nestjs/common");
 const _jwt = require("@nestjs/jwt");
 const _luxon = require("luxon");
@@ -80,6 +81,7 @@ let ReissueTokensHandler = class ReissueTokensHandler {
     }
 };
 ReissueTokensHandler = _ts_decorate([
+    (0, _cqrs.CommandHandler)(ReissueTokensCommand),
     _ts_param(0, (0, _common.Inject)(_authtokeninjectconstants.ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)),
     _ts_param(1, (0, _common.Inject)(_authtokeninjectconstants.REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)),
     _ts_metadata("design:type", Function),

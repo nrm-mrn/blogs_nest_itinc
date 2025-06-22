@@ -57,7 +57,7 @@ const queries = [
     _getallusersquery.GetAllUsersQueryHandler,
     _getuserinfoquery.GetUserInfoQueryHandler,
     _getuserquery.GetUserQueryHandler,
-    _getallusersessionsquery.GetUserSessionsQuery
+    _getallusersessionsquery.GetUserSessionsQueryHandler
 ];
 const useCases = [
     _createuserusecase.CreateUserByAdminHandler,
@@ -71,7 +71,7 @@ const useCases = [
     _confirmnewpasswordusecase.ConfirmPasswordHandler,
     _logoutuserusecase.LogoutCommandHandler,
     _logoutanothersessionusecase.LogoutAnotherSessionHandler,
-    _logoutallothersessionsusecase.LogoutOtherSessionsCommand
+    _logoutallothersessionsusecase.LogoutOtherSessionHandler
 ];
 let UserAccountsModule = class UserAccountsModule {
 };

@@ -1,4 +1,4 @@
-import { ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AuthSuccessDto } from '../../dto/auth-success.dto';
 import { Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -16,6 +16,7 @@ export class ReissueTokensCommand {
   constructor(public token: string) {}
 }
 
+@CommandHandler(ReissueTokensCommand)
 export class ReissueTokensHandler
   implements ICommandHandler<ReissueTokensCommand, AuthSuccessDto>
 {

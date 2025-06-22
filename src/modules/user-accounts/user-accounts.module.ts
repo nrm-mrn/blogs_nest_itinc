@@ -37,15 +37,15 @@ import { RecoverPasswordHandler } from './application/usecases/recover-password.
 import { ConfirmPasswordHandler } from './application/usecases/confirm-new-password.usecase';
 import { LogoutCommandHandler } from './application/usecases/logout-user.usecase';
 import { LogoutAnotherSessionHandler } from './application/usecases/logout-another-session.usecase';
-import { LogoutOtherSessionsCommand } from './application/usecases/logout-all-other-sessions.usecase';
+import { LogoutOtherSessionHandler } from './application/usecases/logout-all-other-sessions.usecase';
 import { UserAccountConfig } from './config/user-account.config';
-import { GetUserSessionsQuery } from './application/queries/get-all-user-sessions.query';
+import { GetUserSessionsQueryHandler } from './application/queries/get-all-user-sessions.query';
 
 const queries = [
   GetAllUsersQueryHandler,
   GetUserInfoQueryHandler,
   GetUserQueryHandler,
-  GetUserSessionsQuery,
+  GetUserSessionsQueryHandler,
 ];
 const useCases = [
   CreateUserByAdminHandler,
@@ -59,7 +59,7 @@ const useCases = [
   ConfirmPasswordHandler,
   LogoutCommandHandler,
   LogoutAnotherSessionHandler,
-  LogoutOtherSessionsCommand,
+  LogoutOtherSessionHandler,
 ];
 
 @Module({
